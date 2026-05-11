@@ -1,0 +1,8 @@
+{
+  "updatedAt": "2026-05-11T07:30:00Z",
+  "window": "72h",
+  "count": 0,
+  "sources": ["gdelt", "google-news"],
+  "note": "Bootstrap file - first live fetch runs on GitHub Actions.",
+  "signals": []
+}
