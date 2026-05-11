@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ផែនទីតាមដានមេរោគ Hantavirus — ពិភពលោក</title>
+  <meta name="description" content="ផែនទីតាមដានការរាតត្បាតនៃមេរោគ Hantavirus ពិភពលោក — ទិន្នន័យផ្ទាល់ ព័ត៌មាន និងស្ថិតិ។" />
+  <meta name="author" content="K.Pichyvoin" />
+
+  <!-- Khmer + Latin fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ef4444'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23fff'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%23ef4444'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- Top navigation -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <div class="brand-text">
+        <strong>HantavirusMap</strong>
+        <span class="brand-sub">ផែនទីតាមដានមេរោគ Hantavirus</span>
+      </div>
+    </div>
+
+    <nav class="topnav">
+      <a href="#map" class="nav-link active">ផែនទី</a>
+      <a href="#events" class="nav-link">ព្រឹត្តិការណ៍</a>
+      <a href="#stats" class="nav-link">ស្ថិតិ</a>
+      <a href="#about" class="nav-link">អំពី</a>
+    </nav>
+
+    <div class="top-actions">
+      <span class="live-indicator">
+        <span class="pulse"></span>
+        ផ្ទាល់
+      </span>
+      <span class="last-updated" id="lastUpdated">កំពុងផ្ទុក…</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Sidebar: event list -->
+    <aside class="sidebar" id="events">
+      <div class="sidebar-header">
+        <h2>ព្រឹត្តិការណ៍សកម្ម</h2>
+        <span class="count-pill" id="eventCount">0</span>
+      </div>
+
+      <div class="filters">
+        <input type="search" id="searchInput" placeholder="ស្វែងរកប្រទេស ឬទីតាំង…" aria-label="ស្វែងរក" />
+        <div class="filter-chips" id="severityFilters">
+          <button class="chip active" data-severity="all">ទាំងអស់</button>
+          <button class="chip" data-severity="critical">ធ្ងន់ធ្ងរ</button>
+          <button class="chip" data-severity="high">ខ្ពស់</button>
+          <button class="chip" data-severity="medium">មធ្យម</button>
+          <button class="chip" data-severity="low">ទាប</button>
+        </div>
+      </div>
+
+      <ul class="event-list" id="eventList"></ul>
+
+      <div class="sidebar-footer">
+        <div class="legend">
+          <h3>ការណែនាំកម្រិតធ្ងន់ធ្ងរ</h3>
+          <div class="legend-row"><span class="dot dot-critical"></span>ធ្ងន់ធ្ងរ — មានមនុស្សស្លាប់</div>
+          <div class="legend-row"><span class="dot dot-high"></span>ខ្ពស់ — បានបញ្ជាក់</div>
+          <div class="legend-row"><span class="dot dot-medium"></span>មធ្យម — សង្ស័យ</div>
+          <div class="legend-row"><span class="dot dot-low"></span>ទាប — តាមដាន</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Map area -->
+    <section class="map-wrap" id="map">
+      <div id="leafletMap" aria-label="ផែនទីពិភពលោក"></div>
+
+      <!-- Floating KPIs -->
+      <div class="kpi-bar" id="stats">
+        <div class="kpi">
+          <span class="kpi-label">ករណីសរុប</span>
+          <strong class="kpi-value" id="kpiCases">0</strong>
+        </div>
+        <div class="kpi kpi-danger">
+          <span class="kpi-label">អ្នកស្លាប់</span>
+          <strong class="kpi-value" id="kpiDeaths">0</strong>
+        </div>
+        <div class="kpi kpi-warn">
+          <span class="kpi-label">ករណីសង្ស័យ</span>
+          <strong class="kpi-value" id="kpiSuspected">0</strong>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">ប្រទេសរងផលប៉ះពាល់</span>
+          <strong class="kpi-value" id="kpiCountries">0</strong>
+        </div>
+      </div>
+
+      <!-- Layer toggles -->
+      <div class="layer-box">
+        <h4>ស្រទាប់ផែនទី</h4>
+        <label><input type="checkbox" id="layerConfirmed" checked /> ករណីបញ្ជាក់</label>
+        <label><input type="checkbox" id="layerSuspected" checked /> ករណីសង្ស័យ</label>
+        <label><input type="checkbox" id="layerEndemic" checked /> តំបន់ឆ្លងធម្មតា</label>
+        <label><input type="checkbox" id="layerHeat" /> ផែនទីកម្តៅ</label>
+      </div>
+    </section>
+  </main>
+
+  <!-- About / Footer -->
+  <section class="about-section" id="about">
+    <div class="about-grid">
+      <div>
+        <h2>អំពីគម្រោងនេះ</h2>
+        <p>
+          <strong>HantavirusMap</strong> គឺជាផ្ទាំងតាមដានការរាតត្បាតនៃមេរោគ
+          <em>Hantavirus</em> នៅទូទាំងពិភពលោក។ ព័ត៌មានត្រូវបានប្រមូលពីប្រភពផ្លូវការដូចជា
+          អង្គការសុខភាពពិភពលោក (WHO), មជ្ឈមណ្ឌលគ្រប់គ្រងជំងឺ (CDC), ECDC, PAHO
+          និងប្រព័ន្ធផ្សព្វផ្សាយសហប្រតិបត្តិការ។
+        </p>
+        <p>
+          គោលបំណងគឺដើម្បីផ្តល់ឱ្យប្រជាពលរដ្ឋខ្មែរនូវព័ត៌មានច្បាស់លាស់
+          និងភាសាងាយយល់ អំពីស្ថានភាពការរាតត្បាតដែលកំពុងកើតឡើង។
+        </p>
+      </div>
+
+      <div>
+        <h3>អំពីមេរោគ Hantavirus</h3>
+        <ul class="fact-list">
+          <li>ជំងឺដែលបណ្តាលមកពីកកម្ញើ (សត្វកណ្តុរ) ជាចម្បង។</li>
+          <li>ការឆ្លងភាគច្រើនតាមរយៈខ្យល់ដែលមានមេរោគពីចំណាយស្ងួតរបស់សត្វ។</li>
+          <li>អត្រាស្លាប់អាចឡើងដល់ ៣៨% សម្រាប់ HPS។</li>
+          <li>មិនទាន់មានវ៉ាក់សាំងដែលបានអនុម័តនៅឡើយទេ។</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>ការការពារ</h3>
+        <ul class="fact-list">
+          <li>សម្អាតផ្ទះ ជៀសវាងការប្រមូលផ្តុំសត្វកណ្តុរ។</li>
+          <li>ពាក់ម៉ាស់នៅពេលសម្អាតផ្ទះដែលមានដានកណ្តុរ។</li>
+          <li>រក្សាអាហារឱ្យបានជាប់សុវត្ថិភាព។</li>
+          <li>ប្រសិនបើមានគ្រុនក្តៅ ពិបាកដកដង្ហើម សូមទៅពេទ្យភ្លាមៗ។</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <strong>បង្កើតដោយ K.Pichyvoin</strong>
+        <span class="sep">·</span>
+        <span>បានបំផុសគំនិតដោយ <a href="https://worldmonitor.app/" target="_blank" rel="noopener">worldmonitor.app</a></span>
+      </div>
+      <div class="footer-sub">
+        © <span id="year"></span> HantavirusMap — ទិន្នន័យគ្រាន់តែជាព័ត៌មាន មិនមែនជាការណែនាំផ្នែកវេជ្ជសាស្ត្រទេ។
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>
