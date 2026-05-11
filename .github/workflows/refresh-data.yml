@@ -1,0 +1,51 @@
+name: Refresh Hantavirus data
+
+# Scrapes hantavirusmap.com (+ fallbacks) every 30 minutes and commits
+# the latest totals to data/hantavirus.json so the static site stays fresh.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 minutes
+  workflow_dispatch: {}      # allow manual runs
+  push:
+    branches: [ main ]
+    paths:
+      - 'scripts/fetch-data.mjs'
+      - 'data/seed.json'
+      - '.github/workflows/refresh-data.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run scraper
+        run: node scripts/fetch-data.mjs
+        env:
+          NODE_OPTIONS: --max-old-space-size=512
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "hantavirus-bot"
+          git config user.email "hantavirus-bot@users.noreply.github.com"
+          if git diff --quiet data/hantavirus.json; then
+            echo "No changes."
+            exit 0
+          fi
+          git add data/hantavirus.json
+          git commit -m "chore(data): auto-refresh totals $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
