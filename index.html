@@ -120,6 +120,28 @@
     </section>
   </main>
 
+    <!-- Right sidebar: Live news signals -->
+    <aside class="signals" id="signals">
+      <div class="signals-header"><div class="signals-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>សញ្ញាណថ្មីៗ</span></div><div class="signals-window">៧២ ម៉ោង</div></div>
+      <div class="signals-search"><input type="search" id="signalsSearch" placeholder="ស្វែងរកព័ត៌មាន…" aria-label="ស្វែងរកសញ្ញាណ" /></div>
+      <ul class="signal-list" id="signalList"></ul>
+      <div class="signals-footer"><span class="signal-foot-note">ទិន្នន័យមកពី GDELT + Google News · រៀងរាល់ ៣០ នាទី</span></div>
+    </aside>
+  </main>
+
+  <!-- News Alert Modal -->
+  <div class="alert-backdrop" id="alertBackdrop" hidden></div>
+  <div class="news-alert" id="newsAlert" hidden role="dialog" aria-modal="true">
+    <div class="alert-head"><div class="alert-kicker"><span class="alert-badge">NEWS ALERT</span><span class="alert-dot">·</span><span class="alert-status" id="alertStatus">សកម្ម</span><span class="alert-age" id="alertAge"></span></div><div class="alert-head-actions"><button class="icon-btn" id="alertShareBtn" title="ចែករំលែក"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button><button class="icon-btn" id="alertCloseBtn" title="បិទ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
+    <h3 class="alert-title" id="alertTitle"></h3>
+    <div class="alert-origin" id="alertOrigin"></div>
+    <p class="alert-summary" id="alertSummary"></p>
+    <div class="alert-meta"><div><span class="alert-meta-label">ប្រទេស:</span> <span id="alertCountry">—</span></div><div><span class="alert-meta-label">ទីតាំង:</span> <span id="alertLocation">—</span></div></div>
+    <div class="alert-actions"><a class="btn-primary" id="alertReadBtn" href="#" target="_blank" rel="noopener">អានប្រភព ↗</a><button class="btn-ghost" id="alertShareBtn2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> ចែករំលែក</button></div>
+    <div class="alert-also" id="alertAlso"></div>
+    <div class="alert-footer">ទិដ្ឋភាពព័ត៌មាន · មិនមែនជាការណែនាំផ្នែកវេជ្ជសាស្ត្រទេ។</div>
+  </div>
+
   <!-- About / Footer -->
   <section class="about-section" id="about">
     <div class="about-grid">
