@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-11T12:35:17.102Z",
+  "updatedAt": "2026-05-11T15:53:02.960Z",
   "sourceStatus": {
     "hantavirusmap": "ok",
     "hantatrack": "error: fetch failed",
@@ -20,12 +20,12 @@
     }
   ],
   "totals": {
-    "cases": 35,
-    "confirmed": 8,
-    "suspected": 8,
+    "cases": 96,
+    "confirmed": 10,
+    "suspected": 10,
     "deaths": 3,
     "critical": 1,
-    "countries": 14
+    "countries": 20
   },
   "events": [
     {
