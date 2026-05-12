@@ -739,3 +739,75 @@ input[type="search"] {
 .alert-also-ext{color:var(--text-mute);}
 .alert-footer{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--text-mute);}
 @media(max-width:1199px){.signals{border-left:none;border-top:1px solid var(--line);max-height:320px;}}
+
+
+
+/* === Donate QR card (matches PICHYVOIN KEO card style) === */
+.donate-qr-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 18px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+.donate-qr-name {
+  font-family: 'Inter', var(--font-km);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+.donate-qr-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 6px 0 14px;
+}
+.donate-qr-card .donate-qr-wrap {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  min-height: 240px;
+  box-shadow: none;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.donate-qr-card .donate-qr {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Add a source-link accent for signal items */
+.signal-source-link {
+  margin-left: 8px;
+  color: var(--info);
+  font-size: 11px;
+  font-family: 'Inter', var(--font-km);
+  text-decoration: none;
+  border: 1px solid rgba(56,189,248,0.3);
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+.signal-source-link:hover {
+  background: rgba(56,189,248,0.1);
+  color: #7dd3fc;
+  text-decoration: none;
+}
+.signal-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.signal-feed {
+  font-size: 9.5px;
+  color: var(--text-mute);
+  font-family: 'Inter', var(--font-km);
+  background: var(--bg-3);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
