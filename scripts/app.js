@@ -339,6 +339,7 @@ const NEWS_URL='data/news.json';
 const newsState={signals:[],query:'',activeId:null};
 let newsSignalLayer=null;
 const COUNTRY_KM={'Spain':'អេស្ប៉ាញ','Argentina':'អាហ្សង់ទីន','United States':'សហរដ្ឋអាមេរិក','United Kingdom':'ចក្រភពអង់គ្លេស','Switzerland':'ស្វ៊ីស','Netherlands':'ហូឡង់','Germany':'អាល្លឺម៉ង់','Singapore':'សិង្ហបុរី','South Africa':'អាហ្វ្រិកខាងត្បូង','Cape Verde':'កាបវឺដេ','Brazil':'ប្រេស៊ីល','Chile':'ឈីលី','China':'ចិន','South Korea':'កូរ៉េខាងត្បូង','Finland':'ហ្វាំងឡង់','France':'បារាំង','Japan':'ជប៉ុន','Cambodia':'កម្ពុជា','Antarctica':'អង់តាក់ទិក','WHO':'WHO'};
+const COUNTRY_KM={'Spain':'អេស្ប៉ាញ','Argentina':'អាហ្សង់ទីន','United States':'សហរដ្ឋអាមេរិក','United Kingdom':'ចក្រភពអង់គ្លេស','Switzerland':'ស្វ៊ីស','Netherlands':'ហូឡង់','Germany':'អាល្លឺម៉ង់','Singapore':'សិង្ហបុរី','South Africa':'អាហ្វ្រិកខាងត្បូង','Cape Verde':'កាបវឺដេ','Brazil':'ប្រេស៊ីល','Chile':'ឈីលី','China':'ចិន','South Korea':'កូរ៉េខាងត្បូង','Finland':'ហ្វាំងឡង់','France':'បារាំង','Cambodia':'កម្ពុជា'};
 const STATUS_KM={active:'សកម្ម',update:'បច្ចុប្បន្នភាព',monitoring:'តាមដាន'};
 function relAgoShort(iso){const s=(Date.now()-Date.parse(iso))/1000;if(s<60)return'now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
 function escHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -370,6 +371,9 @@ function renderSignalList(){
       </div>
     </li>`;
   }).join('');
+  const items=newsState.signals.filter(s=>!q||(s.title+' '+(s.country||'')+' '+(s.location||'')).toLowerCase().includes(q));
+  if(!items.length){el.innerHTML='<li class="signal-empty"><div class="signal-empty-icon">📡</div><div>គ្មានសញ្ញាណព័ត៌មានថ្មីៗទេ។</div><div class="signal-empty-sub">ទិន្នន័យនឹងធ្វើបច្ចុប្បន្នភាពក្នុង ៣០ នាទី។</div></li>';return;}
+  el.innerHTML=items.slice(0,80).map(s=>{const dup=s.duplicates?.length||0;return`<li class="signal-item ${newsState.activeId===s.id?'active':''}" data-id="${s.id}"><div class="signal-row-top"><span class="signal-kind">NEWS</span><span class="signal-age">${relAgoShort(s.publishedAt)}</span>${dup?`<span class="signal-dup">+${dup}</span>`:''}<span class="signal-dot signal-dot-${s.severity}"></span></div><div class="signal-title">${escHtml(s.title)}</div><div class="signal-row-bottom"><span class="signal-loc">• ${s.location?escHtml(s.location):'<span class="muted">no location</span>'}</span></div></li>`;}).join('');
   el.querySelectorAll('.signal-item').forEach(li=>li.addEventListener('click',()=>openNewsAlert(li.dataset.id)));
 }
 function placeNewsPins(){
@@ -379,6 +383,7 @@ function placeNewsPins(){
 }
 function openNewsAlert(id){
   const s=newsState.signals.find(x=>x.id===id);if(!s)return;newsState.activeId=id;renderSignalList();
+  const s=newsState.signals.find(x=>x.id===id);if(!s)return;newsState.activeId=id;
   document.getElementById('alertTitle').textContent=s.title;
   document.getElementById('alertStatus').textContent=STATUS_KM[s.status]||'សកម្ម';
   document.getElementById('alertAge').textContent=formatRelativeKm(s.publishedAt);
@@ -389,6 +394,10 @@ function openNewsAlert(id){
   document.getElementById('alertSummary').textContent=s.title;
   const also=document.getElementById('alertAlso');
   if(s.duplicates?.length){also.innerHTML=`<div class="alert-also-label">ក៏បានរាយការណ៍ដោយ ${toKhmerNum(s.duplicates.length)} ប្រភពផ្សេង</div>`+s.duplicates.slice(0,5).map(d=>`<a class="alert-also-row" href="${escHtml(d.url)}" target="_blank" rel="noopener"><span class="alert-also-kind">NEWS</span><span class="alert-also-title">${escHtml(d.title||d.source||d.url)}</span><span class="alert-also-ext">↗</span></a>`).join('');}else{also.innerHTML='';}
+  document.getElementById('alertOrigin').textContent=`ប្រភព — ${s.source||'news'}`;
+  document.getElementById('alertSummary').textContent=s.title;
+  const also=document.getElementById('alertAlso');
+  if(s.duplicates?.length){also.innerHTML=`<div class="alert-also-label">ក៏បានរាយការណ៍ដោយ ${toKhmerNum(s.duplicates.length)} ប្រភពផ្សេង</div>`+s.duplicates.slice(0,4).map(d=>`<a class="alert-also-row" href="${escHtml(d.url)}" target="_blank" rel="noopener"><span class="alert-also-kind">NEWS</span><span class="alert-also-title">${escHtml(d.title||d.url)}</span><span class="alert-also-ext">↗</span></a>`).join('');}else{also.innerHTML='';}
   document.getElementById('alertBackdrop').hidden=false;document.getElementById('newsAlert').hidden=false;
   requestAnimationFrame(()=>{document.getElementById('newsAlert').classList.add('open');document.getElementById('alertBackdrop').classList.add('open');});
   if(s.lat!=null)map.flyTo([s.lat,s.lng],4,{duration:0.8});
@@ -402,3 +411,7 @@ document.getElementById('alertShareBtn2')?.addEventListener('click',()=>{const s
 document.getElementById('signalsSearch')?.addEventListener('input',e=>{newsState.query=e.target.value.trim();renderSignalList();});
 loadNews();setInterval(()=>loadNews(),REFRESH_MS);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadNews();});
+document.getElementById('alertShareBtn')?.addEventListener('click',()=>{const s=newsState.signals.find(x=>x.id===newsState.activeId);if(s&&navigator.share)navigator.share({title:s.title,url:s.url}).catch(()=>{});else if(s)navigator.clipboard?.writeText(s.title+' — '+s.url);});
+document.getElementById('alertShareBtn2')?.addEventListener('click',()=>{const s=newsState.signals.find(x=>x.id===newsState.activeId);if(s&&navigator.share)navigator.share({title:s.title,url:s.url}).catch(()=>{});else if(s)navigator.clipboard?.writeText(s.title+' — '+s.url);});
+document.getElementById('signalsSearch')?.addEventListener('input',e=>{newsState.query=e.target.value.trim();renderSignalList();});
+loadNews();setInterval(()=>loadNews(),REFRESH_MS);
