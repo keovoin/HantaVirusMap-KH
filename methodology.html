@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ទិន្នន័យ & វិធីសាស្ត្រ — HantavirusMap</title>
+  <meta name="description" content="Data sources and methodology — HantavirusMap aggregates WHO DON, ProMED, ECDC, GDELT and Google News." />
+  <meta name="author" content="K.Pichyvoin" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ef4444'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23fff'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%23ef4444'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+        <span class="brand-dot"></span>
+        <div class="brand-text">
+          <strong>HantavirusMap</strong>
+          <span class="brand-sub">ផែនទីតាមដានមេរោគ Hantavirus</span>
+        </div>
+      </a>
+    </div>
+    <nav class="topnav">
+      <a href="index.html"      class="nav-link">ផែនទី</a>
+      <a href="hantavirus.html" class="nav-link">អំពីមេរោគ</a>
+      <a href="symptoms.html"   class="nav-link">រោគសញ្ណា</a>
+      <a href="methodology.html" class="nav-link active">ទិន្នន័យ</a>
+    </nav>
+    <div class="top-actions">
+      <button class="donate-btn" id="donateBtn" aria-label="ឧបត្ថម្ភ">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        ឧបត្ថម្ភ
+      </button>
+    </div>
+  </header>
+
+  <main class="article">
+    <div class="article-wrap">
+      <div class="article-kicker">ប្រភពទិន្នន័យ · Data Sources &amp; Methodology</div>
+      <h1 class="article-title">ទិន្នន័យ &amp; វិធីសាស្ត្រ</h1>
+      <p class="article-lead">
+        យើងមិនបង្កើតទិន្នន័យ epidemiological ដំបូងទេ។ យើង <strong>ប្រមូល (aggregate)</strong>,
+        <strong>តំរៀបរៀបចំ (normalise)</strong> និង <strong>ភ្ជាប់ (link back)</strong> ទៅប្រភពផ្លូវការ។
+        ចំណុចទិន្នន័យគ្រប់ទាំងអស់នៅលើផែនទី គឺអាចតាមដានបាន (traceable)។
+      </p>
+
+      <!-- Data sources table -->
+      <section class="article-section">
+        <h2>ប្រភពទិន្នន័យ</h2>
+        <div class="method-table-wrap">
+          <table class="method-table">
+            <thead>
+              <tr>
+                <th>ប្រភព (Source)</th>
+                <th>តួនាទី (Role)</th>
+                <th>ប្រេក័ន្ត (Frequency)</th>
+                <th>ទំនាក់ទំនង</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-official">
+                <td><strong>WHO Disease Outbreak News</strong></td>
+                <td>ព្រឹត្តិការណ៍ផ្លូវការពិភពលោក / Official global outbreak bulletins</td>
+                <td>On report</td>
+                <td><a href="https://www.who.int/emergencies/disease-outbreak-news" target="_blank" rel="noopener">Visit ↗</a></td>
+              </tr>
+              <tr class="row-official">
+                <td><strong>ProMED-mail</strong></td>
+                <td>សញ្ញាណការរាតត្បាតពីសហគមន៍ / Community-curated outbreak signals</td>
+                <td>Continuous</td>
+                <td><a href="https://promedmail.org/" target="_blank" rel="noopener">Visit ↗</a></td>
+              </tr>
+              <tr class="row-official">
+                <td><strong>ECDC Surveillance</strong></td>
+                <td>ការតាមដានអឺរ៉ុប / European surveillance data</td>
+                <td>Annual / alerts</td>
+                <td><a href="https://www.ecdc.europa.eu/en/hantavirus-infection" target="_blank" rel="noopener">Visit ↗</a></td>
+              </tr>
+              <tr>
+                <td><strong>CDC NNDSS</strong></td>
+                <td>រាយការណ៍ប្រចាំសប្តាហ៍អាមេរិក / US weekly notifiable disease reports</td>
+                <td>Weekly</td>
+                <td><a href="https://www.cdc.gov/hantavirus/about/index.html" target="_blank" rel="noopener">Visit ↗</a></td>
+              </tr>
+              <tr>
+                <td><strong>PAHO/WHO Americas</strong></td>
+                <td>ចំនួនករណី & ការដាស់តឿននៅអាមេរិកឡាទីន / Latin American case counts and alerts</td>
+                <td>Weekly–monthly</td>
+                <td><a href="https://www.paho.org/" target="_blank" rel="noopener">Visit ↗</a></td>
+              </tr>
+              <tr>
+                <td><strong>GDELT Project</strong></td>
+                <td>ស្ថានភាពព័ត៌មានពិភពលោក / Global news event database</td>
+                <td>Every 30 min</td>
+                <td><a href="https://gdeltproject.org/" target="_blank" rel="noopener">Visit ↗</a></td>
+              </tr>
+              <tr>
+                <td><strong>Google News (14 locales)</strong></td>
+                <td>ព័ត៌មានចំនួន ១៤ ភាសា / en-US, en-GB, es, ja, fr, de, pt, zh, ko, nl...</td>
+                <td>Every 30 min</td>
+                <td><a href="https://news.google.com/" target="_blank" rel="noopener">Visit ↗</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Methodology -->
+      <section class="article-section">
+        <h2>វិធីសាស្ត្រ (Methodology)</h2>
+        <ol class="steps-list">
+          <li>
+            <strong>Active alerts</strong> ត្រូវបានទាញ (pull) ពី WHO DON, ProMED និង ECDC feeds
+            ហើយបំបែកអ្វីដែលស្ទួន (de-duplicated)។
+          </li>
+          <li>
+            <strong>News signals</strong> ត្រូវបានប្រមូលពី GDELT DOC 2.0 API និង Google News RSS
+            ចំនួន ១៤ locale ។ ក្បួន NLP (client-side) ដំណើរការ:
+            <ul class="fact-list" style="margin-top:8px">
+              <li>ស្វែងរកឈ្មោះប្រទេស / ទីក្រុង (dictionary 35+ ប្រទេស)</li>
+              <li>ចាត់ប្រភេទ: Local / Imported / Response</li>
+              <li>ស្វែងរកចំនួនករណី / ស្លាប់</li>
+              <li>ប្រែប្រួលចំណងជើងទៅជាខ្មែរ (80+ phrase rules)</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Historical cases</strong> ត្រូវបានភ្ជាប់ទៅ country/region geographies (ISO 3166)។
+          </li>
+          <li>
+            <strong>Endemic zones</strong> ត្រូវបានទាញចេញពី published long-term epidemiology —
+            មិនមែនពី individual alerts ទេ។
+          </li>
+          <li>
+            យើងចូលចិត្ត <strong>ការបង្ហាញការពិតដែលមិនពេញលេញ ជាជាងភាពច្បាស់លាស់មិនត្រឹមត្រូវ</strong>
+            (incomplete transparency over false precision) — ពេលទិន្នន័យមានកម្រ យើងនិយាយដូច្នោះ។
+          </li>
+        </ol>
+      </section>
+
+      <!-- Limitations -->
+      <section class="article-section">
+        <h2>ដែនកំណត់ (Limitations)</h2>
+        <div class="article-callout">
+          <strong>ចំណាំ:</strong> ផ្ទាំងនេះជាព័ត៌មានប៉ុណ្ណោះ — មិនមែនជាការណែនាំផ្នែកវេជ្ជសាស្ត្រទេ។
+          ប្រសិនបើអ្នកមានអាការៈ សូមទៅជួបគ្រូពេទ្យ។
+        </div>
+        <ul class="fact-list">
+          <li>ការទទួលបានការតាមដានសាធារណៈ (public surveillance) ជាទូទៅយឺតជាងព្រឹត្តិការណ៍ជាក់ស្តែង ដោយ ថ្ងៃ, សប្តាហ៍ ឬ ខែ។</li>
+          <li>ការរាយការណ៍ (reporting coverage) និង case definitions ខុសគ្នារវាងប្រទេស។</li>
+          <li>Country-level polygons មិនឆ្លុះបញ្ចាំងការប្រែប្រួលក្នុងប្រទេសទេ។</li>
+          <li>ការបកប្រែ (Khmer translation) ជា rule-based — មិនមែន AI ។ ពាក្យ English ខ្លះអាចនៅក្នុង title។</li>
+          <li>ចំនួននៅលើ pin = ចំនួននៃរបាយការណ៍ថ្មីៗ — <strong>មិនមែន</strong>ករណីបញ្ជាក់ (confirmed cases) ទេ។</li>
+          <li>ការ refresh ប្រើ <code>data/news.json</code> ដែល commit ដោយ GitHub Actions រៀងរាល់ ៣០ នាទី — លេខថ្មីមាននៅក្រោយ cron run ខាងមុខ។</li>
+        </ul>
+      </section>
+
+      <!-- Update frequency -->
+      <section class="article-section">
+        <h2>ប្រេក័ន្តការធ្វើបច្ចុប្បន្នភាព (Update frequency)</h2>
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="info-card-head"><span class="info-card-tag tag-high">Auto</span></div>
+            <h3>រៀងរាល់ ៣០ នាទី</h3>
+            <p>GitHub Actions crons ដំណើរការ <code>fetch-news.mjs</code> (signals) និង <code>fetch-data.mjs</code> (totals) ។ ឯកសារ JSON ថ្មីត្រូវបាន commit ប្រសិនបើមានការផ្លាស់ប្តូរ។</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-head"><span class="info-card-tag tag-medium">On-demand</span></div>
+            <h3>Manual trigger</h3>
+            <p>Actions tab → "Refresh news signals" → "Run workflow" ។ ការ refresh ក្នុង browser ទាញ JSON ថ្មីបំផុត — ប្រសិន cron មិនទាន់ run លេខនឹងដូចគ្នា។</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="article-source-note">
+        ប្រភពព័ត៌មាន:
+        <a href="https://www.who.int/emergencies/disease-outbreak-news" target="_blank" rel="noopener">WHO DON</a> ·
+        <a href="https://promedmail.org/" target="_blank" rel="noopener">ProMED</a> ·
+        <a href="https://www.ecdc.europa.eu/en/hantavirus-infection" target="_blank" rel="noopener">ECDC</a> ·
+        <a href="https://www.cdc.gov/hantavirus/about/index.html" target="_blank" rel="noopener">CDC</a> ·
+        <a href="https://gdeltproject.org/" target="_blank" rel="noopener">GDELT</a> ·
+        Google News (14 locales)
+      </div>
+
+      <div class="article-nav-bottom">
+        <a href="index.html" class="btn-ghost">← ត្រឡប់ទៅផែនទី</a>
+        <a href="symptoms.html" class="btn-primary">រោគសញ្ណា →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <strong>បង្កើតដោយ K.Pichyvoin</strong>
+        <span class="sep">·</span>
+        <span>បានបំផុសគំនិតដោយ <a href="https://worldmonitor.app/" target="_blank" rel="noopener">worldmonitor.app</a></span>
+      </div>
+      <div class="footer-sub">© <span id="year"></span> HantavirusMap — ទិន្នន័យគ្រាន់តែជាព័ត៌មាន។</div>
+    </div>
+  </footer>
+
+  <div class="alert-backdrop" id="donateBackdrop" hidden></div>
+  <div class="donate-modal" id="donateModal" hidden role="dialog" aria-modal="true">
+    <div class="donate-head">
+      <h3>ឧបត្ថម្ភគម្រោង</h3>
+      <button class="icon-btn" id="donateCloseBtn" aria-label="បិទ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <p class="donate-sub">សូមអរគុណដែលបានគាំទ្រ។ ស្កេន QR ខាងក្រោម។</p>
+    <div class="donate-qr-card">
+      <div class="donate-qr-name">PICHYVOIN KEO</div>
+      <div class="donate-qr-divider"></div>
+      <div class="donate-qr-wrap">
+        <canvas id="donateQRCanvas" class="donate-qr-canvas" width="260" height="260"></canvas>
+      </div>
+    </div>
+    <div class="donate-info">
+      <div class="donate-row"><span class="donate-label">ឈ្មោះ:</span><strong>PICHYVOIN KEO</strong></div>
+    </div>
+    <div class="donate-actions">
+      <button class="btn-primary" id="donateCloseBtn2">បិទ</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear().toString().replace(/\d/g,d=>'០១២៣៤៥៦៧៨៩'[+d]);
+    const dBtn=document.getElementById('donateBtn'),dModal=document.getElementById('donateModal'),dBack=document.getElementById('donateBackdrop');
+    function openD(){dBack.hidden=false;dModal.hidden=false;requestAnimationFrame(()=>{dBack.classList.add('open');dModal.classList.add('open');});}
+    function closeD(){dBack.classList.remove('open');dModal.classList.remove('open');setTimeout(()=>{dBack.hidden=true;dModal.hidden=true;},200);}
+    dBtn?.addEventListener('click',openD);
+    document.getElementById('donateCloseBtn')?.addEventListener('click',closeD);
+    document.getElementById('donateCloseBtn2')?.addEventListener('click',closeD);
+    dBack?.addEventListener('click',closeD);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeD();});
+  </script>
+</body>
+</html>
