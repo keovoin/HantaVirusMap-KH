@@ -31,6 +31,7 @@
       <a href="#map" class="nav-link active">ផែនទី</a>
       <a href="hantavirus.html" class="nav-link">អំពីមេរោគ</a>
       <a href="symptoms.html" class="nav-link">រោគសញ្ញា</a>
+      <a href="methodology.html" class="nav-link">ទិន្នន័យ</a>
       <a href="#about" class="nav-link">អំពី</a>
     </nav>
 
@@ -153,6 +154,36 @@
             <label><input type="checkbox" id="layerEndemic" checked /> តំបន់ឆ្លងធម្មតា (៦ តំបន់)</label>
             <label><input type="checkbox" id="layerHeat" /> ផែនទីកម្តៅ</label>
           </div>
+
+          <!-- Add context section -->
+          <div class="layers-context">
+            <div class="layers-context-title">Add context · ព័ត៌មានបន្ថែម</div>
+
+            <label class="ctx-row">
+              <input type="checkbox" id="ctxEndemic" />
+              <div>
+                <div class="ctx-row-title">Endemic regions</div>
+                <div class="ctx-row-sub">៦ តំបន់ · វត្តមានរយៈពេលវែង</div>
+              </div>
+            </label>
+
+            <label class="ctx-row">
+              <input type="checkbox" id="ctxHistorical" />
+              <div>
+                <div class="ctx-row-title">Historical cases</div>
+                <div class="ctx-row-sub">៣៣ តំបន់ · ទំហំរង្វង់ = ចំនួនករណី</div>
+              </div>
+            </label>
+
+            <div class="ctx-route">
+              <div class="ctx-route-title">Route alert</div>
+              <div class="ctx-route-legend">
+                <span class="ctx-route-chip"><span class="ctx-route-dep"></span>Departure</span>
+                <span class="ctx-route-chip"><span class="ctx-route-stop"></span>Stopover</span>
+                <span class="ctx-route-chip"><span class="ctx-route-hosp">+</span>Hospital</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -273,14 +304,13 @@
       <div class="donate-qr-name">PICHYVOIN KEO</div>
       <div class="donate-qr-divider"></div>
       <div class="donate-qr-wrap">
-        <img id="donateQR" class="donate-qr" src="assets/donate-qr.png" alt="QR code — PICHYVOIN KEO"
-             onerror="this.style.display='none';document.getElementById('donateQRFallback').style.display='flex';" />
+        <canvas id="donateQRCanvas" class="donate-qr-canvas" width="260" height="260" aria-label="QR code — PICHYVOIN KEO"></canvas>
         <div class="donate-qr-placeholder" id="donateQRFallback" style="display:none;">
           <div class="donate-qr-icon">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/><line x1="18" y1="14" x2="18" y2="18"/><line x1="14" y1="18" x2="18" y2="18"/></svg>
           </div>
-          <div class="donate-placeholder-title">ដាក់ QR នៅទីនេះ</div>
-          <div class="donate-placeholder-sub">ដាក់រូប QR របស់អ្នកនៅ <code>assets/donate-qr.png</code></div>
+          <div class="donate-placeholder-title">QR នឹងបង្ហាញនៅទីនេះ</div>
+          <div class="donate-placeholder-sub">កំពុងផ្ទុកបណ្ណាល័យ QR...</div>
         </div>
       </div>
     </div>
@@ -298,6 +328,8 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <!-- QR code generator — renders donate QR in-browser, no file upload needed -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="scripts/app.js"></script>
 </body>
 </html>

@@ -9,6 +9,14 @@ const DATA_URL = 'data/hantavirus.json';
 const NEWS_URL = 'data/news.json';
 const REFRESH_MS = 30 * 60 * 1000;
 
+/* ========================================================
+ *  DONATE QR — edit DONATE_PAYLOAD below to change the QR.
+ *  For a payment QR (KHQR / ABA / Wing / PayPal), paste the
+ *  payment-string or URL. For text, just put your name.
+ * ======================================================== */
+const DONATE_PAYLOAD = window.DONATE_PAYLOAD || 'PICHYVOIN KEO';
+const DONATE_NAME    = 'PICHYVOIN KEO';
+
 /* ---------- Khmer helpers ---------- */
 const KHMER_DIGITS = ['០','១','២','៣','៤','៥','៦','៧','៨','៩'];
 function toKhmerNum(n) { return String(n ?? 0).replace(/\d/g, d => KHMER_DIGITS[+d]); }
@@ -38,6 +46,130 @@ function relAgoShort(iso) {
 }
 function escHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- Headline phrase translator (English -> Khmer)
+ * Replaces the ~60 most common outbreak-news phrases with Khmer
+ * equivalents, then lowercases the remaining English words so the
+ * title reads more naturally in Khmer context.
+ * It's a rule-based translator — not perfect but very useful.
+ * ---------- */
+const PHRASE_KM = [
+  // Disease names & sources
+  [/\bhantavirus\b/gi,                'មេរោគ Hantavirus'],
+  [/\bandes virus\b/gi,               'មេរោគ Andes'],
+  [/\bmv hondius\b/gi,                'កប៉ាល់ MV Hondius'],
+  [/\bhondius\b/gi,                   'Hondius'],
+  [/\bcruise ship\b/gi,               'កប៉ាល់ទេសចរណ៍'],
+  [/\bcruise\b/gi,                    'កប៉ាល់ទេសចរណ៍'],
+  // Events / status
+  [/\boutbreak\b/gi,                  'ការរាតត្បាត'],
+  [/\bcluster\b/gi,                   'ក្រុមករណី'],
+  [/\bcases?\b/gi,                    'ករណី'],
+  [/\bdeaths?\b/gi,                   'អ្នកស្លាប់'],
+  [/\bdies?\b/gi,                     'ស្លាប់'],
+  [/\bdied\b/gi,                      'បានស្លាប់'],
+  [/\bkilled\b/gi,                    'បានស្លាប់'],
+  [/\bfatal(?:ity|ities)?\b/gi,       'មានការស្លាប់'],
+  [/\bconfirmed\b/gi,                 'បានបញ្ជាក់'],
+  [/\bsuspected\b/gi,                 'សង្ស័យ'],
+  [/\bpositive test\b/gi,             'តេស្តវិជ្ជមាន'],
+  [/\btests? positive\b/gi,           'តេស្តឃើញវិជ្ជមាន'],
+  [/\bpositive\b/gi,                  'វិជ្ជមាន'],
+  [/\binfected\b/gi,                  'បានឆ្លង'],
+  [/\bsymptoms?\b/gi,                 'រោគសញ្ញា'],
+  [/\bsymptomatic\b/gi,               'មានរោគសញ្ញា'],
+  [/\bexposed\b/gi,                   'បានប៉ះពាល់'],
+  [/\bexposure\b/gi,                  'ការប៉ះពាល់'],
+  // Response actions
+  [/\bquarantin(?:e|ed|ing)\b/gi,     'ដាក់ឱ្យនៅដាច់ដោយឡែក'],
+  [/\bevacuat(?:e|ed|ion)\b/gi,       'ជម្លៀស'],
+  [/\bscreen(?:ing|ed)?\b/gi,         'ពិនិត្យ'],
+  [/\bmonitor(?:ed|ing)?\b/gi,        'តាមដាន'],
+  [/\badvisory\b/gi,                  'ការប្រកាសព្រមាន'],
+  [/\btravel warning\b/gi,            'ព្រមានការធ្វើដំណើរ'],
+  [/\bhealth advisory\b/gi,           'ការប្រកាសសុខាភិបាល'],
+  [/\bhealth alert\b/gi,              'ការដាស់តឿនសុខាភិបាល'],
+  [/\bpublic health\b/gi,             'សុខភាពសាធារណៈ'],
+  [/\btravel\b/gi,                    'ការធ្វើដំណើរ'],
+  // Authorities
+  [/\bWHO\b/g,                        'WHO'],
+  [/\bCDC\b/g,                        'CDC'],
+  [/\bHHS\b/g,                        'HHS'],
+  [/\bUKHSA\b/g,                      'UKHSA'],
+  [/\bNCDHHS\b/g,                     'NCDHHS'],
+  [/\bRIVM\b/g,                       'RIVM'],
+  // Places (kept explicit; locations in the pill render separately)
+  [/\bU\.S\.?\b/g,                    'សហរដ្ឋអាមេរិក'],
+  [/\bUSA\b/g,                        'សហរដ្ឋអាមេរិក'],
+  [/\bUnited States\b/g,              'សហរដ្ឋអាមេរិក'],
+  [/\bUK\b/g,                         'ចក្រភពអង់គ្លេស'],
+  [/\bUnited Kingdom\b/g,             'ចក្រភពអង់គ្លេស'],
+  [/\bNebraska\b/g,                   'Nebraska'],
+  [/\bTenerife\b/g,                   'Tenerife'],
+  [/\bNew York\b/g,                   'ញូវយ៉ក'],
+  [/\bNorth Carolina\b/g,             'North Carolina'],
+  [/\bSpain\b/g,                      'អេស្ប៉ាញ'],
+  [/\bArgentina\b/g,                  'អាហ្សង់ទីន'],
+  [/\bNetherlands\b/g,                'ហូឡង់'],
+  [/\bGermany\b/g,                    'អាល្លឺម៉ង់'],
+  [/\bSwitzerland\b/g,                'ស្វ៊ីស'],
+  [/\bSingapore\b/g,                  'សិង្ហបុរី'],
+  [/\bJapan\b/g,                      'ជប៉ុន'],
+  [/\bCambodia\b/g,                   'កម្ពុជា'],
+  [/\bChina\b/g,                      'ចិន'],
+  [/\bFrance\b/g,                     'បារាំង'],
+  [/\bCanada\b/g,                     'កាណាដា'],
+  [/\bMexico\b/g,                     'ម៉ិកស៊ិក'],
+  [/\bBrazil\b/g,                     'ប្រេស៊ីល'],
+  [/\bChile\b/g,                      'ឈីលី'],
+  [/\bSouth Africa\b/g,               'អាហ្វ្រិកខាងត្បូង'],
+  [/\bAustralia\b/g,                  'អូស្ត្រាលី'],
+  // Common connectors / verbs
+  [/\bresident\b/gi,                  'អ្នករស់នៅ'],
+  [/\bpassengers?\b/gi,               'អ្នកដំណើរ'],
+  [/\bAmericans?\b/gi,                'ជនជាតិអាមេរិក'],
+  [/\bpeople\b/gi,                    'ប្រជាជន'],
+  [/\bperson\b/gi,                    'មនុស្សម្នាក់'],
+  [/\bhospital(ized|ised|ization)?\b/gi, 'សម្រាកនៅមន្ទីរពេទ្យ'],
+  [/\bhospital\b/gi,                  'មន្ទីរពេទ្យ'],
+  [/\bdoctor\b/gi,                    'គ្រូពេទ្យ'],
+  [/\bstarted\b/gi,                   'ចាប់ផ្តើម'],
+  [/\bbegin(?:s|ning)?\b/gi,          'ចាប់ផ្តើម'],
+  [/\barrived?\b/gi,                  'មកដល់'],
+  [/\breturn(?:ed|ing)?\b/gi,         'ត្រឡប់មកវិញ'],
+  [/\brisk\b/gi,                      'ហានិភ័យ'],
+  [/\bspread(ing)?\b/gi,              'ការរីករាលដាល'],
+  [/\bhuman-to-human\b/gi,            'មនុស្សទៅមនុស្ស'],
+  [/\bcontagious\b/gi,                'ឆ្លង'],
+  [/\btreatment\b/gi,                 'ការព្យាបាល'],
+  [/\bsituation\b/gi,                 'ស្ថានភាព'],
+  [/\btimeline\b/gi,                  'កាលវិភាគ'],
+  [/\bmap(s|ped|ping)?\b/gi,          'ផែនទី'],
+  [/\bworldwide\b/gi,                 'ទូទាំងពិភពលោក'],
+  [/\bglobal\b/gi,                    'សកល'],
+  [/\bupdate(s|d)?\b/gi,              'បច្ចុប្បន្នភាព'],
+  [/\bwhat to know\b/gi,              'អ្វីដែលគួរដឹង'],
+  // Cleanup: dashes/dots that look awkward after translation
+  [/\s+[-–—]\s+/g, ' — '],
+];
+
+// Build a rudimentary "source name — Khmer title" from an English headline.
+// Example: "Americans from hantavirus-hit cruise ship arrive in U.S. - CBS News"
+// -> { title_km: "ជនជាតិអាមេរិកពីកប៉ាល់ទេសចរណ៍ដែលឆ្លងមេរោគ Hantavirus មកដល់ សហរដ្ឋអាមេរិក", source_km: "CBS News" }
+function translateToKhmer(title) {
+  if (!title) return title;
+  let t = title;
+  // Split off trailing " - Source Name" so we can translate the headline cleanly
+  let source = null;
+  const m = t.match(/^(.*?)\s[-–—]\s([^-–—]{2,40})$/);
+  if (m) { t = m[1]; source = m[2].trim(); }
+  for (const [re, km] of PHRASE_KM) t = t.replace(re, km);
+  // Remove lingering hyphen-compounds like "hantavirus-hit"
+  t = t.replace(/\b([^\s]+)-hit\b/gi, 'ដែលឆ្លង $1');
+  // Collapse multiple spaces
+  t = t.replace(/\s{2,}/g, ' ').trim();
+  return source ? `${t} — ${source}` : t;
 }
 
 /* ---------- Country & location dictionaries ---------- */
@@ -288,7 +420,7 @@ function signalToEvent(s, idx) {
   })[s.signalType || 'other'];
   return {
     id: 'news-' + s.id,
-    title_km: s.title,   // keep original language for fidelity
+    title_km: s.title_km || translateToKhmer(s.title),
     country_km,
     region,
     lat: s.lat,
@@ -302,7 +434,7 @@ function signalToEvent(s, idx) {
     date: (s.publishedAt || new Date().toISOString()).slice(0, 10),
     strain: typeKm,
     source: s.source || 'news',
-    summary_km: `[${typeKm}] ${s.title}`,
+    summary_km: `[${typeKm}] ${s.title_km || translateToKhmer(s.title)}`,
     _isSignal: true,
     _url: s.url
   };
@@ -400,7 +532,8 @@ async function loadData() {
     rebuildMergedEvents();
     updateTimestampUI();
     const ageMs = Date.now() - new Date(state.updatedAt).getTime();
-    setStatus(ageMs > 2*60*60*1000 ? 'stale' : 'live');
+    // Use 12h threshold — data is expected to be a few hours old between cron runs
+    setStatus(ageMs > 12 * 60 * 60 * 1000 ? 'stale' : 'live');
   } catch (err) {
     console.error('loadData:', err);
     setStatus('error');
@@ -429,6 +562,13 @@ async function loadNews() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     const raw = json.signals || [];
+    // Update the timestamp using news.json's updatedAt (fresher than hantavirus.json)
+    if (json.updatedAt) {
+      state.updatedAt = json.updatedAt;
+      updateTimestampUI();
+      const ageMs = Date.now() - new Date(json.updatedAt).getTime();
+      setStatus(ageMs > 12 * 60 * 60 * 1000 ? 'stale' : 'live');
+    }
     // Enrich each signal client-side: fill missing country/location + classify type
     newsState.signals = raw.map(s => {
       const enriched = { ...s };
@@ -443,6 +583,7 @@ async function loadNews() {
         }
       }
       enriched.signalType = classifySignalType(enriched.title);
+      enriched.title_km   = translateToKhmer(enriched.title);
       return enriched;
     });
     renderSignalList();
@@ -476,6 +617,7 @@ function renderSignalList() {
     const loc = s.location || (s.country ? (COUNTRY_KM[s.country] || s.country) : 'មិនបានកំណត់');
     const isActive = newsState.activeId === s.id ? 'active' : '';
     const typeClass = s.signalType ? `signal-type-${s.signalType}` : '';
+    const titleKm = s.title_km || translateToKhmer(s.title);
     return `<li class="signal-item ${isActive}" data-id="${s.id}">
       <div class="signal-row-top">
         <span class="signal-kind">NEWS</span>
@@ -484,7 +626,7 @@ function renderSignalList() {
         ${dup ? `<span class="signal-dup">+${dup}</span>` : ''}
         <span class="signal-dot signal-dot-${s.severity} ${typeClass}"></span>
       </div>
-      <div class="signal-title">${escHtml(s.title)}</div>
+      <div class="signal-title">${escHtml(titleKm)}</div>
       <div class="signal-row-bottom">
         <span class="signal-loc">• ${escHtml(loc)}</span>
         <a class="signal-source-link" href="${escHtml(s.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escHtml(s.source || 'source')} ↗</a>
@@ -678,6 +820,34 @@ document.getElementById('layersToggleBtn')?.addEventListener('click', () => {
 
 /* ---------- Init ---------- */
 document.getElementById('year').textContent = toKhmerNum(new Date().getFullYear());
+
+/* Generate QR code for donate modal using qrcode.js (CDN) */
+(function initDonateQR() {
+  const canvas = document.getElementById('donateQRCanvas');
+  if (!canvas) return;
+  function tryGenerate() {
+    if (typeof QRCode === 'undefined') { setTimeout(tryGenerate, 300); return; }
+    try {
+      new QRCode(canvas, {
+        text: DONATE_PAYLOAD || DONATE_NAME,
+        width: 260, height: 260,
+        colorDark: '#000000', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e) {
+      // Fallback: draw a simple "scan unavailable" text
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#f8fafc'; ctx.fillRect(0,0,260,260);
+        ctx.fillStyle = '#64748b'; ctx.font = '13px Inter,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('ដាក់ QR នៅ assets/donate-qr.png', 130, 130);
+      }
+    }
+  }
+  tryGenerate();
+})();
+
 loadData();
 loadNews();
 setInterval(loadData, REFRESH_MS);
