@@ -11,9 +11,7 @@ const REFRESH_MS = 30 * 60 * 1000;
 
 /* ---------- Khmer helpers ---------- */
 const KHMER_DIGITS = ['០','១','២','៣','៤','៥','៦','៧','៨','៩'];
-function toKhmerNum(n) {
-  return String(n ?? 0).replace(/\d/g, d => KHMER_DIGITS[+d]);
-}
+function toKhmerNum(n) { return String(n ?? 0).replace(/\d/g, d => KHMER_DIGITS[+d]); }
 function formatKhmerDate(iso) {
   const months = ['មករា','កុម្ភៈ','មីនា','មេសា','ឧសភា','មិថុនា','កក្កដា','សីហា','កញ្ញា','តុលា','វិច្ឆិកា','ធ្នូ'];
   const d = new Date(iso);
@@ -34,30 +32,167 @@ function formatRelativeKm(iso) {
 function relAgoShort(iso) {
   const s = (Date.now() - Date.parse(iso)) / 1000;
   if (s < 60)    return 'now';
-  if (s < 3600)  return Math.floor(s/60) + 'm ago';
-  if (s < 86400) return Math.floor(s/3600) + 'h ago';
-  return Math.floor(s/86400) + 'd ago';
+  if (s < 3600)  return Math.floor(s/60) + 'm';
+  if (s < 86400) return Math.floor(s/3600) + 'h';
+  return Math.floor(s/86400) + 'd';
 }
 function escHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* ---------- Country Khmer labels ---------- */
+/* ---------- Country & location dictionaries ---------- */
 const COUNTRY_KM = {
   'Spain':'អេស្ប៉ាញ','Argentina':'អាហ្សង់ទីន','United States':'សហរដ្ឋអាមេរិក',
   'United Kingdom':'ចក្រភពអង់គ្លេស','Switzerland':'ស្វ៊ីស','Netherlands':'ហូឡង់',
   'Germany':'អាល្លឺម៉ង់','Singapore':'សិង្ហបុរី','South Africa':'អាហ្វ្រិកខាងត្បូង',
   'Cape Verde':'កាបវឺដេ','Brazil':'ប្រេស៊ីល','Chile':'ឈីលី','China':'ចិន',
   'South Korea':'កូរ៉េខាងត្បូង','Finland':'ហ្វាំងឡង់','France':'បារាំង',
-  'Japan':'ជប៉ុន','Cambodia':'កម្ពុជា','Antarctica':'អង់តាក់ទិក','WHO':'WHO'
+  'Japan':'ជប៉ុន','Cambodia':'កម្ពុជា','Antarctica':'អង់តាក់ទិក','WHO':'WHO',
+  'Canada':'កាណាដា','Mexico':'ម៉ិកស៊ិក','Portugal':'ព័រទុយហ្គាល់','Italy':'អ៊ីតាលី',
+  'Belgium':'បែលហ្ស៊ិក','Sweden':'ស៊ុយអែត','Norway':'ន័រវេស','Denmark':'ដាណឺម៉ាក',
+  'Poland':'ប៉ូឡូញ','Russia':'រុស្ស៊ី','Australia':'អូស្ត្រាលី','New Zealand':'ន្យូហ្សេឡង់',
+  'India':'ឥណ្ឌា','Thailand':'ថៃ','Vietnam':'វៀតណាម','Philippines':'ហ្វ៊ីលីពីន',
+  'Indonesia':'ឥណ្ឌូនេស៊ី','Malaysia':'ម៉ាឡេស៊ី','Ireland':'អៀរឡង់','Austria':'អូទ្រីស'
 };
 const STATUS_KM = { active:'សកម្ម', update:'បច្ចុប្បន្នភាព', monitoring:'តាមដាន' };
+
+// Rich country dictionary for client-side location detection.
+// aliases include US states, major cities, demonyms, health agencies.
+const COUNTRY_DICT = [
+  { name:'United States', code:'US', lat:38.90, lng:-77.04, aliases:[
+    'U.S.','USA','U.S.A.',' US ',' US\\.',' US,',' US$','American','Americans','Washington',
+    'Nebraska','North Carolina','South Carolina','California','Texas','Florida','Alabama',
+    'Arizona','Arkansas','Colorado','Connecticut','Delaware','Georgia','Hawaii','Idaho',
+    'Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland',
+    'Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nevada',
+    'New Hampshire','New Jersey','New Mexico','New York','Ohio','Oklahoma','Oregon',
+    'Pennsylvania','Rhode Island','Tennessee','Utah','Vermont','Virginia','Washington',
+    'West Virginia','Wisconsin','Wyoming','Houston','Atlanta','Omaha','Sacramento',
+    'Raleigh','NCDHHS','CDC','HHS','Eppley','Trump','RFK','Hochul'
+  ]},
+  { name:'Spain', code:'ES', lat:40.42, lng:-3.70, aliases:['Spanish','Espanol','Tenerife','Canary','Madrid','Barcelona','España'] },
+  { name:'Argentina', code:'AR', lat:-34.60, lng:-58.38, aliases:['Argentinian','Argentino','Patagonia','Bariloche','Buenos Aires','Ushuaia'] },
+  { name:'United Kingdom', code:'GB', lat:51.51, lng:-0.13, aliases:['UK','Britain','British','England','London','UKHSA','Scotland','Wales'] },
+  { name:'Switzerland', code:'CH', lat:47.38, lng:8.54, aliases:['Swiss','Zurich','Geneva','Basel'] },
+  { name:'Netherlands', code:'NL', lat:52.37, lng:4.90, aliases:['Dutch','Amsterdam','RIVM','Rotterdam','Hague','Holland'] },
+  { name:'Germany', code:'DE', lat:52.52, lng:13.41, aliases:['German','Deutsch','Berlin','Munich','Hamburg','Der Standard','Bild','RKI'] },
+  { name:'Singapore', code:'SG', lat:1.35, lng:103.82, aliases:['Singaporean'] },
+  { name:'South Africa', code:'ZA', lat:-33.92, lng:18.42, aliases:['Cape Town','Johannesburg','NICD','South African','Durban'] },
+  { name:'Cape Verde', code:'CV', lat:14.93, lng:-23.51, aliases:['Cabo Verde','Praia'] },
+  { name:'Brazil', code:'BR', lat:-15.78, lng:-47.93, aliases:['Brazilian','Brasil','Rio','Sao Paulo','São Paulo','Minas Gerais'] },
+  { name:'Chile', code:'CL', lat:-33.45, lng:-70.67, aliases:['Chilean','Santiago','Valparaiso'] },
+  { name:'China', code:'CN', lat:39.90, lng:116.40, aliases:['Chinese','Beijing','Shanghai','Shandong','Guangzhou'] },
+  { name:'South Korea', code:'KR', lat:37.57, lng:126.98, aliases:['Korean','Seoul','KDCA','Busan'] },
+  { name:'Finland', code:'FI', lat:60.17, lng:24.94, aliases:['Finnish','Helsinki','THL'] },
+  { name:'France', code:'FR', lat:48.86, lng:2.35, aliases:['French','Paris','Lyon','Marseille','Bordeaux'] },
+  { name:'Japan', code:'JP', lat:35.68, lng:139.69, aliases:['Japanese','Tokyo','Osaka','Kyoto'] },
+  { name:'Cambodia', code:'KH', lat:11.56, lng:104.93, aliases:['Khmer','Phnom Penh','Cambodian','Siem Reap'] },
+  { name:'Canada', code:'CA', lat:45.42, lng:-75.70, aliases:['Canadian','Toronto','Vancouver','Montreal','Ottawa','Quebec','Ontario','Alberta','BC','B.C.'] },
+  { name:'Mexico', code:'MX', lat:19.43, lng:-99.13, aliases:['Mexican','Mexico City','Ciudad de Mexico','CDMX'] },
+  { name:'Portugal', code:'PT', lat:38.72, lng:-9.14, aliases:['Portuguese','Lisbon','Porto'] },
+  { name:'Italy', code:'IT', lat:41.90, lng:12.50, aliases:['Italian','Rome','Milan','Napoli','Turin'] },
+  { name:'Australia', code:'AU', lat:-33.87, lng:151.21, aliases:['Australian','Sydney','Melbourne','Brisbane','Perth'] },
+  { name:'Russia', code:'RU', lat:55.75, lng:37.62, aliases:['Russian','Moscow','St Petersburg','Petersburg'] },
+  { name:'Sweden', code:'SE', lat:59.33, lng:18.07, aliases:['Swedish','Stockholm','Gothenburg'] },
+  { name:'Norway', code:'NO', lat:59.91, lng:10.75, aliases:['Norwegian','Oslo','Bergen'] },
+  { name:'Antarctica', code:'AQ', lat:-62.0, lng:-58.0, aliases:['Antarctic','South Atlantic','MV Hondius','Hondius','cruise ship','South Georgia'] }
+];
+
+// Sub-locations get more specific lat/lng and location name
+const SUBLOC = [
+  { re:/tenerife|canary/i, country:'Spain', loc:'Tenerife, Spain', lat:28.29, lng:-16.63 },
+  { re:/madrid/i, country:'Spain', loc:'Madrid, Spain', lat:40.42, lng:-3.70 },
+  { re:/barcelona/i, country:'Spain', loc:'Barcelona, Spain', lat:41.39, lng:2.17 },
+  { re:/patagonia|bariloche/i, country:'Argentina', loc:'Patagonia, Argentina', lat:-41.13, lng:-71.31 },
+  { re:/ushuaia/i, country:'Argentina', loc:'Ushuaia, Argentina', lat:-54.80, lng:-68.30 },
+  { re:/buenos aires/i, country:'Argentina', loc:'Buenos Aires, Argentina', lat:-34.60, lng:-58.38 },
+  { re:/nebraska/i, country:'United States', loc:'Nebraska, US', lat:41.26, lng:-95.93 },
+  { re:/north carolina|\bnc\b/i, country:'United States', loc:'North Carolina, US', lat:35.75, lng:-78.64 },
+  { re:/new york/i, country:'United States', loc:'New York, US', lat:40.71, lng:-74.00 },
+  { re:/new hampshire/i, country:'United States', loc:'New Hampshire, US', lat:43.20, lng:-71.54 },
+  { re:/utah/i, country:'United States', loc:'Utah, US', lat:40.76, lng:-111.89 },
+  { re:/texas|houston/i, country:'United States', loc:'Texas, US', lat:29.76, lng:-95.37 },
+  { re:/atlanta|georgia\b/i, country:'United States', loc:'Atlanta, Georgia, US', lat:33.75, lng:-84.39 },
+  { re:/sacramento|california/i, country:'United States', loc:'California, US', lat:38.58, lng:-121.49 },
+  { re:/omaha|eppley/i, country:'United States', loc:'Omaha, Nebraska, US', lat:41.26, lng:-95.93 },
+  { re:/washington d\.?c\.?|washington post/i, country:'United States', loc:'Washington DC, US', lat:38.90, lng:-77.04 },
+  { re:/cape town/i, country:'South Africa', loc:'Cape Town, South Africa', lat:-33.92, lng:18.42 },
+  { re:/london/i, country:'United Kingdom', loc:'London, UK', lat:51.51, lng:-0.13 },
+  { re:/tristan da cunha/i, country:'United Kingdom', loc:'Tristan da Cunha', lat:-37.07, lng:-12.32 },
+  { re:/zurich/i, country:'Switzerland', loc:'Zurich, Switzerland', lat:47.38, lng:8.54 },
+  { re:/amsterdam/i, country:'Netherlands', loc:'Amsterdam, Netherlands', lat:52.37, lng:4.90 },
+  { re:/berlin/i, country:'Germany', loc:'Berlin, Germany', lat:52.52, lng:13.41 },
+  { re:/mv hondius|hondius|cruise ship/i, country:'Antarctica', loc:'MV Hondius (South Atlantic)', lat:-54.5, lng:-36.5 }
+];
+
+/**
+ * detectLocationClient — richer client-side location detection for signals.
+ * Returns { country, countryCode, location, lat, lng } or nulls if no match.
+ */
+function detectLocationClient(title, rawCountry) {
+  const hay = ' ' + (title || '') + ' ' + (rawCountry || '') + ' ';
+  // Try sub-locations first
+  for (const s of SUBLOC) {
+    if (s.re.test(hay)) {
+      const c = COUNTRY_DICT.find(x => x.name === s.country);
+      return { country: s.country, countryCode: c?.code || '', location: s.loc, lat: s.lat, lng: s.lng };
+    }
+  }
+  // Country name / alias match
+  for (const c of COUNTRY_DICT) {
+    const tokens = [c.name, ...c.aliases];
+    for (const tk of tokens) {
+      // For tokens with special chars, use as-is; else wrap with \b
+      let pattern;
+      if (/[\\.]/.test(tk) || tk.startsWith(' ') || tk.endsWith(' ')) {
+        pattern = tk.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      } else {
+        pattern = '\\b' + tk.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b';
+      }
+      try {
+        if (new RegExp(pattern, 'i').test(hay)) {
+          return { country: c.name, countryCode: c.code, location: c.name, lat: c.lat, lng: c.lng };
+        }
+      } catch (e) { /* bad regex, skip */ }
+    }
+  }
+  return { country: null, countryCode: null, location: null, lat: null, lng: null };
+}
+
+/**
+ * classifySignalType — returns one of 'local' | 'imported' | 'response' | 'other'
+ * Based on keyword patterns in the headline.
+ */
+function classifySignalType(title) {
+  const t = (title || '').toLowerCase();
+  // Imported: evacuated, returnee, repatriated, arrived, quarantined in X, brought to
+  if (/\b(evacuat|quarantin|repatriat|returnee|return from|brought back|flown back|arrived|arrive back|hospital(ized|ised) in)\b/.test(t)) {
+    return 'imported';
+  }
+  // Response: advisory, screening, warning, policy, alert (without case)
+  if (/\b(advisory|screening|travel warning|travel alert|travel advisory|monitoring|policy|response plan|guidance|watch list)\b/.test(t) && !/(case|death|confirmed|outbreak)/.test(t)) {
+    return 'response';
+  }
+  // Local: outbreak, case, death, confirmed
+  if (/\b(outbreak|case|death|died|dies|confirmed|killed|fatal|positive)\b/.test(t)) {
+    return 'local';
+  }
+  return 'other';
+}
+
+/**
+ * signalSeverityColor — 'critical' | 'high' | 'medium' | 'low'
+ * (re-derived on client in case data is stale)
+ */
+function deriveSeverity(signal) {
+  return signal.severity || 'medium';
+}
 
 /* ---------- State ---------- */
 const state = {
   events: [], totals: {}, updatedAt: null, sourceStatus: {},
   severity: 'all', query: '', activeId: null,
-  layers: { confirmed: true, suspected: true, endemic: true, heat: false }
+  layers: { confirmed: true, suspected: true, endemic: true, heat: false, signals: true }
 };
 const newsState = { signals: [], query: '', activeId: null };
 
@@ -139,7 +274,41 @@ function getFiltered() {
   });
 }
 
-/* ---------- Left sidebar (events) ---------- */
+/* ---------- Merged events: curated + enriched signals ---------- */
+// Convert an enriched news signal into an event-like object so it shows
+// in the left "ព្រឹត្តិការណ៍សកម្ម" list with Khmer labels.
+function signalToEvent(s, idx) {
+  const country_km = s.country ? (COUNTRY_KM[s.country] || s.country) : 'មិនបានកំណត់';
+  const region = s.location || s.country || 'មិនបានកំណត់';
+  const typeKm = ({
+    local: 'ក្នុងស្រុក',
+    imported: 'នាំចូល',
+    response: 'វិធានការ',
+    other: 'តាមដាន'
+  })[s.signalType || 'other'];
+  return {
+    id: 'news-' + s.id,
+    title_km: s.title,   // keep original language for fidelity
+    country_km,
+    region,
+    lat: s.lat,
+    lng: s.lng,
+    severity: s.severity || 'medium',
+    status: 'monitoring',
+    cases: s.cases ?? 0,
+    confirmed: 0,
+    suspected: 0,
+    deaths: s.deaths ?? 0,
+    date: (s.publishedAt || new Date().toISOString()).slice(0, 10),
+    strain: typeKm,
+    source: s.source || 'news',
+    summary_km: `[${typeKm}] ${s.title}`,
+    _isSignal: true,
+    _url: s.url
+  };
+}
+
+/* ---------- Sidebar render (curated + signal events) ---------- */
 function renderList() {
   const listEl = document.getElementById('eventList');
   const countEl = document.getElementById('eventCount');
@@ -159,7 +328,11 @@ function renderList() {
       <div>
         <div class="event-title">${escHtml(ev.title_km)}</div>
         <div class="event-meta">${escHtml(ev.country_km)} · ${escHtml(ev.region)}</div>
-        <div class="event-stats">ករណី ${toKhmerNum(ev.cases)} · ស្លាប់ ${toKhmerNum(ev.deaths)} · ${escHtml(ev.strain)}</div>
+        <div class="event-stats">
+          ${ev._isSignal
+            ? `${escHtml(ev.strain)} · ${escHtml(ev.source)}`
+            : `ករណី ${toKhmerNum(ev.cases)} · ស្លាប់ ${toKhmerNum(ev.deaths)} · ${escHtml(ev.strain)}`}
+        </div>
       </div>
       <div class="event-date">${formatKhmerDate(ev.date)}</div>
     </li>`).join('');
@@ -172,6 +345,13 @@ function selectEvent(id) {
   renderList();
   const ev = state.events.find(e => e.id === id);
   if (!ev) return;
+  // If it's a signal-event, open the news alert modal
+  if (ev._isSignal) {
+    const realId = id.replace(/^news-/, '');
+    openNewsAlert(realId);
+    return;
+  }
+  if (ev.lat == null) return;
   map.flyTo([ev.lat, ev.lng], 5, { duration: 0.9 });
   setTimeout(() => markersById[id]?.openPopup(), 950);
 }
@@ -179,10 +359,12 @@ function selectEvent(id) {
 /* ---------- KPIs ---------- */
 function renderKPIs() {
   const t = state.totals || {};
-  const casesE = state.events.reduce((s,e) => s + (e.cases||0), 0);
-  const deathsE = state.events.reduce((s,e) => s + (e.deaths||0), 0);
-  const suspE = state.events.reduce((s,e) => s + (e.suspected||0), 0);
-  const countE = new Set(state.events.filter(e => e.cases > 0).map(e => e.country_km)).size;
+  // prefer aggregated totals from the scraper; fall back to summing events
+  const curated = state.events.filter(e => !e._isSignal);
+  const casesE = curated.reduce((s,e) => s + (e.cases||0), 0);
+  const deathsE = curated.reduce((s,e) => s + (e.deaths||0), 0);
+  const suspE = curated.reduce((s,e) => s + (e.suspected||0), 0);
+  const countE = new Set(curated.filter(e => e.cases > 0).map(e => e.country_km)).size;
   document.getElementById('kpiCases').textContent     = toKhmerNum(t.cases     ?? casesE);
   document.getElementById('kpiDeaths').textContent    = toKhmerNum(t.deaths    ?? deathsE);
   document.getElementById('kpiSuspected').textContent = toKhmerNum(t.suspected ?? suspE);
@@ -205,18 +387,17 @@ function updateTimestampUI() {
   el.textContent = `បច្ចុប្បន្នភាព: ${formatKhmerDateTime(new Date(state.updatedAt))} (${formatRelativeKm(state.updatedAt)})`;
 }
 
-/* ---------- Load curated events ---------- */
+/* ---------- Load curated events + merge enriched signals ---------- */
+let _curatedEvents = [];
 async function loadData() {
   try {
     const res = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
-    state.events    = json.events || [];
-    state.totals    = json.totals || {};
-    state.updatedAt = json.updatedAt || new Date().toISOString();
-    renderKPIs();
-    renderList();
-    rebuildMarkers();
+    _curatedEvents   = json.events || [];
+    state.totals     = json.totals || {};
+    state.updatedAt  = json.updatedAt || new Date().toISOString();
+    rebuildMergedEvents();
     updateTimestampUI();
     const ageMs = Date.now() - new Date(state.updatedAt).getTime();
     setStatus(ageMs > 2*60*60*1000 ? 'stale' : 'live');
@@ -226,15 +407,47 @@ async function loadData() {
   }
 }
 
-/* ---------- Load news signals ---------- */
+function rebuildMergedEvents() {
+  // Start with curated events (always shown)
+  const curated = _curatedEvents.slice();
+  // Append enriched signal-events that have a location (else they'd have no lat/lng for map)
+  const signalEvents = newsState.signals
+    .filter(s => s.country && s.lat != null)
+    .slice(0, 40)
+    .map((s, i) => signalToEvent(s, i));
+  state.events = [...curated, ...signalEvents];
+  renderKPIs();
+  renderList();
+  rebuildMarkers();
+  renderLayersPanel();
+}
+
+/* ---------- News signals: load + enrich locally ---------- */
 async function loadNews() {
   try {
     const res = await fetch(`${NEWS_URL}?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
-    newsState.signals = json.signals || [];
+    const raw = json.signals || [];
+    // Enrich each signal client-side: fill missing country/location + classify type
+    newsState.signals = raw.map(s => {
+      const enriched = { ...s };
+      if (!enriched.country || enriched.lat == null) {
+        const loc = detectLocationClient(enriched.title, enriched.rawCountry || enriched.country);
+        if (loc.country) {
+          enriched.country     = loc.country;
+          enriched.countryCode = loc.countryCode;
+          enriched.location    = loc.location;
+          enriched.lat         = loc.lat;
+          enriched.lng         = loc.lng;
+        }
+      }
+      enriched.signalType = classifySignalType(enriched.title);
+      return enriched;
+    });
     renderSignalList();
     placeNewsPins();
+    rebuildMergedEvents();
   } catch (err) {
     console.warn('loadNews:', err);
     const el = document.getElementById('signalList');
@@ -260,15 +473,16 @@ function renderSignalList() {
   }
   el.innerHTML = items.slice(0, 100).map(s => {
     const dup = s.duplicates?.length || 0;
-    const loc = s.location || 'no location';
+    const loc = s.location || (s.country ? (COUNTRY_KM[s.country] || s.country) : 'មិនបានកំណត់');
     const isActive = newsState.activeId === s.id ? 'active' : '';
+    const typeClass = s.signalType ? `signal-type-${s.signalType}` : '';
     return `<li class="signal-item ${isActive}" data-id="${s.id}">
       <div class="signal-row-top">
         <span class="signal-kind">NEWS</span>
         <span class="signal-age">${relAgoShort(s.publishedAt)}</span>
         ${s.feedId ? `<span class="signal-feed">${escHtml(s.feedId)}</span>` : ''}
         ${dup ? `<span class="signal-dup">+${dup}</span>` : ''}
-        <span class="signal-dot signal-dot-${s.severity}"></span>
+        <span class="signal-dot signal-dot-${s.severity} ${typeClass}"></span>
       </div>
       <div class="signal-title">${escHtml(s.title)}</div>
       <div class="signal-row-bottom">
@@ -282,19 +496,62 @@ function renderSignalList() {
   );
 }
 
+/* ---------- News pins on map: cluster by country with numbered circles ---------- */
 function placeNewsPins() {
   newsSignalLayer.clearLayers();
+  if (!state.layers.signals) return;
+
+  // Group signals by country
+  const groups = new Map(); // key = country code (or raw lat/lng string)
   newsState.signals.forEach(s => {
     if (s.lat == null || s.lng == null) return;
-    const icon = L.divIcon({
-      className: '',
-      html: `<div class="news-pin news-pin-${s.severity}"></div>`,
-      iconSize: [12, 12], iconAnchor: [6, 6]
-    });
-    L.marker([s.lat, s.lng], { icon })
-      .on('click', () => openNewsAlert(s.id))
-      .addTo(newsSignalLayer);
+    const key = s.countryCode || `${s.lat},${s.lng}`;
+    const arr = groups.get(key) || { lat: s.lat, lng: s.lng, country: s.country, signals: [] };
+    arr.signals.push(s);
+    groups.set(key, arr);
   });
+
+  groups.forEach(g => {
+    const count = g.signals.length;
+    // Determine dominant type across the group
+    const typeCounts = { local: 0, imported: 0, response: 0, other: 0 };
+    g.signals.forEach(s => { typeCounts[s.signalType || 'other']++; });
+    const type = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0][0];
+    // Dominant severity
+    const sevRank = { critical:0, high:1, medium:2, low:3 };
+    const worstSev = g.signals.slice().sort((a, b) => sevRank[a.severity] - sevRank[b.severity])[0]?.severity || 'medium';
+
+    const html = count > 1
+      ? `<div class="news-pin-cluster pin-${worstSev} pin-type-${type}">${count}</div>`
+      : `<div class="news-pin pin-${worstSev} pin-type-${type}"></div>`;
+
+    const size = count > 1 ? [28, 28] : [14, 14];
+    const icon = L.divIcon({ className: '', html, iconSize: size, iconAnchor: [size[0]/2, size[1]/2] });
+    const m = L.marker([g.lat, g.lng], { icon });
+    m.on('click', () => {
+      if (count > 1) {
+        // If zoomed out, zoom in; else open first signal
+        if (map.getZoom() < 5) map.flyTo([g.lat, g.lng], 5, { duration: 0.8 });
+        else openNewsAlert(g.signals[0].id);
+      } else {
+        openNewsAlert(g.signals[0].id);
+      }
+    });
+    m.addTo(newsSignalLayer);
+  });
+}
+
+/* ---------- Layers panel with country/alert counts ---------- */
+function renderLayersPanel() {
+  const el = document.getElementById('layersPanelContent');
+  if (!el) return;
+  const withCountry = newsState.signals.filter(s => s.country);
+  const countryCount = new Set(withCountry.map(s => s.country)).size;
+  const total30d = newsState.signals.length; // news window is 72h/30d
+  const elCountries = document.getElementById('layersCountries');
+  const elAlerts    = document.getElementById('layersAlerts');
+  if (elCountries) elCountries.textContent = toKhmerNum(countryCount);
+  if (elAlerts)    elAlerts.textContent    = toKhmerNum(total30d);
 }
 
 /* ---------- News alert modal ---------- */
@@ -360,11 +617,12 @@ document.getElementById('searchInput')?.addEventListener('input', e => {
   state.query = e.target.value.trim();
   renderList(); rebuildMarkers();
 });
-['Confirmed','Suspected','Endemic','Heat'].forEach(name => {
+['Confirmed','Suspected','Endemic','Heat','Signals'].forEach(name => {
   const el = document.getElementById('layer' + name);
   el?.addEventListener('change', () => {
     state.layers[name.toLowerCase()] = el.checked;
-    rebuildMarkers();
+    if (name === 'Signals') placeNewsPins();
+    else rebuildMarkers();
   });
 });
 document.querySelectorAll('.topnav .nav-link').forEach(link => {
@@ -394,6 +652,11 @@ document.getElementById('signalsSearch')?.addEventListener('input', e => {
   renderSignalList();
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNewsAlert(); });
+
+// Layers panel toggle (collapse/expand)
+document.getElementById('layersToggleBtn')?.addEventListener('click', () => {
+  document.getElementById('layersPanel')?.classList.toggle('collapsed');
+});
 
 /* ---------- Donate modal wiring ---------- */
 (function() {
