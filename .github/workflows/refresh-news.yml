@@ -6,6 +6,7 @@ on:
   workflow_dispatch: {}
   push:
     branches: [ main, feat/khmer-hantavirus-map ]
+    paths: ['scripts/fetch-news.mjs', '.github/workflows/refresh-news.yml']
     paths:
       - 'scripts/fetch-news.mjs'
       - '.github/workflows/refresh-news.yml'
@@ -23,6 +24,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: node scripts/fetch-news.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "hantavirus-bot"
+          git config user.email "hantavirus-bot@users.noreply.github.com"
+          if git diff --quiet data/news.json; then echo "No changes."; exit 0; fi
         with:
           node-version: '20'
       - run: node scripts/fetch-news.mjs

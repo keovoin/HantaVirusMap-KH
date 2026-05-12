@@ -338,6 +338,7 @@ document.addEventListener('visibilitychange', () => {
 const NEWS_URL='data/news.json';
 const newsState={signals:[],query:'',activeId:null};
 let newsSignalLayer=null;
+const COUNTRY_KM={'Spain':'អេស្ប៉ាញ','Argentina':'អាហ្សង់ទីន','United States':'សហរដ្ឋអាមេរិក','United Kingdom':'ចក្រភពអង់គ្លេស','Switzerland':'ស្វ៊ីស','Netherlands':'ហូឡង់','Germany':'អាល្លឺម៉ង់','Singapore':'សិង្ហបុរី','South Africa':'អាហ្វ្រិកខាងត្បូង','Cape Verde':'កាបវឺដេ','Brazil':'ប្រេស៊ីល','Chile':'ឈីលី','China':'ចិន','South Korea':'កូរ៉េខាងត្បូង','Finland':'ហ្វាំងឡង់','France':'បារាំង','Japan':'ជប៉ុន','Cambodia':'កម្ពុជា','Antarctica':'អង់តាក់ទិក','WHO':'WHO'};
 const COUNTRY_KM={'Spain':'អេស្ប៉ាញ','Argentina':'អាហ្សង់ទីន','United States':'សហរដ្ឋអាមេរិក','United Kingdom':'ចក្រភពអង់គ្លេស','Switzerland':'ស្វ៊ីស','Netherlands':'ហូឡង់','Germany':'អាល្លឺម៉ង់','Singapore':'សិង្ហបុរី','South Africa':'អាហ្វ្រិកខាងត្បូង','Cape Verde':'កាបវឺដេ','Brazil':'ប្រេស៊ីល','Chile':'ឈីលី','China':'ចិន','South Korea':'កូរ៉េខាងត្បូង','Finland':'ហ្វាំងឡង់','France':'បារាំង','Cambodia':'កម្ពុជា'};
 const STATUS_KM={active:'សកម្ម',update:'បច្ចុប្បន្នភាព',monitoring:'តាមដាន'};
 function relAgoShort(iso){const s=(Date.now()-Date.parse(iso))/1000;if(s<60)return'now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
@@ -349,6 +350,27 @@ async function loadNews(){
 function renderSignalList(){
   const el=document.getElementById('signalList');if(!el)return;
   const q=newsState.query.toLowerCase();
+  const items=newsState.signals.filter(s=>!q||(s.title+' '+(s.country||'')+' '+(s.location||'')+' '+(s.source||'')).toLowerCase().includes(q));
+  if(!items.length){el.innerHTML='<li class="signal-empty"><div class="signal-empty-icon">📡</div><div>គ្មានសញ្ញាណព័ត៌មានថ្មីៗទេ។</div><div class="signal-empty-sub">ទិន្នន័យនឹងធ្វើបច្ចុប្បន្នភាពក្នុង ៣០ នាទី។</div></li>';return;}
+  el.innerHTML=items.slice(0,100).map(s=>{
+    const dup=s.duplicates?.length||0;
+    const locText=s.location||'no location';
+    const isActive=newsState.activeId===s.id?'active':'';
+    return`<li class="signal-item ${isActive}" data-id="${s.id}">
+      <div class="signal-row-top">
+        <span class="signal-kind">NEWS</span>
+        <span class="signal-age">${relAgoShort(s.publishedAt)}</span>
+        <span class="signal-feed">${escHtml(s.feedId||'')}</span>
+        ${dup?`<span class="signal-dup">+${dup}</span>`:''}
+        <span class="signal-dot signal-dot-${s.severity}"></span>
+      </div>
+      <div class="signal-title">${escHtml(s.title)}</div>
+      <div class="signal-row-bottom">
+        <span class="signal-loc">• ${escHtml(locText)}</span>
+        <a class="signal-source-link" href="${escHtml(s.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escHtml(s.source||'source')} ↗</a>
+      </div>
+    </li>`;
+  }).join('');
   const items=newsState.signals.filter(s=>!q||(s.title+' '+(s.country||'')+' '+(s.location||'')).toLowerCase().includes(q));
   if(!items.length){el.innerHTML='<li class="signal-empty"><div class="signal-empty-icon">📡</div><div>គ្មានសញ្ញាណព័ត៌មានថ្មីៗទេ។</div><div class="signal-empty-sub">ទិន្នន័យនឹងធ្វើបច្ចុប្បន្នភាពក្នុង ៣០ នាទី។</div></li>';return;}
   el.innerHTML=items.slice(0,80).map(s=>{const dup=s.duplicates?.length||0;return`<li class="signal-item ${newsState.activeId===s.id?'active':''}" data-id="${s.id}"><div class="signal-row-top"><span class="signal-kind">NEWS</span><span class="signal-age">${relAgoShort(s.publishedAt)}</span>${dup?`<span class="signal-dup">+${dup}</span>`:''}<span class="signal-dot signal-dot-${s.severity}"></span></div><div class="signal-title">${escHtml(s.title)}</div><div class="signal-row-bottom"><span class="signal-loc">• ${s.location?escHtml(s.location):'<span class="muted">no location</span>'}</span></div></li>`;}).join('');
@@ -360,6 +382,7 @@ function placeNewsPins(){
   newsState.signals.forEach(s=>{if(s.lat==null)return;const icon=L.divIcon({className:'',html:`<div class="news-pin news-pin-${s.severity}"></div>`,iconSize:[12,12],iconAnchor:[6,6]});L.marker([s.lat,s.lng],{icon}).on('click',()=>openNewsAlert(s.id)).addTo(newsSignalLayer);});
 }
 function openNewsAlert(id){
+  const s=newsState.signals.find(x=>x.id===id);if(!s)return;newsState.activeId=id;renderSignalList();
   const s=newsState.signals.find(x=>x.id===id);if(!s)return;newsState.activeId=id;
   document.getElementById('alertTitle').textContent=s.title;
   document.getElementById('alertStatus').textContent=STATUS_KM[s.status]||'សកម្ម';
@@ -367,6 +390,10 @@ function openNewsAlert(id){
   document.getElementById('alertCountry').textContent=s.country?(COUNTRY_KM[s.country]||s.country):'—';
   document.getElementById('alertLocation').textContent=s.location||'—';
   document.getElementById('alertReadBtn').href=s.url;
+  document.getElementById('alertOrigin').textContent=`ប្រភព: ${s.source||'news'} · ${s.feedId||''}`;
+  document.getElementById('alertSummary').textContent=s.title;
+  const also=document.getElementById('alertAlso');
+  if(s.duplicates?.length){also.innerHTML=`<div class="alert-also-label">ក៏បានរាយការណ៍ដោយ ${toKhmerNum(s.duplicates.length)} ប្រភពផ្សេង</div>`+s.duplicates.slice(0,5).map(d=>`<a class="alert-also-row" href="${escHtml(d.url)}" target="_blank" rel="noopener"><span class="alert-also-kind">NEWS</span><span class="alert-also-title">${escHtml(d.title||d.source||d.url)}</span><span class="alert-also-ext">↗</span></a>`).join('');}else{also.innerHTML='';}
   document.getElementById('alertOrigin').textContent=`ប្រភព — ${s.source||'news'}`;
   document.getElementById('alertSummary').textContent=s.title;
   const also=document.getElementById('alertAlso');
@@ -379,6 +406,11 @@ function closeNewsAlert(){const el=document.getElementById('newsAlert'),bd=docum
 document.getElementById('alertCloseBtn')?.addEventListener('click',closeNewsAlert);
 document.getElementById('alertBackdrop')?.addEventListener('click',closeNewsAlert);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNewsAlert();});
+document.getElementById('alertShareBtn')?.addEventListener('click',()=>{const s=newsState.signals.find(x=>x.id===newsState.activeId);if(!s)return;if(navigator.share)navigator.share({title:s.title,url:s.url}).catch(()=>{});else navigator.clipboard?.writeText(s.title+' — '+s.url);});
+document.getElementById('alertShareBtn2')?.addEventListener('click',()=>{const s=newsState.signals.find(x=>x.id===newsState.activeId);if(!s)return;if(navigator.share)navigator.share({title:s.title,url:s.url}).catch(()=>{});else navigator.clipboard?.writeText(s.title+' — '+s.url);});
+document.getElementById('signalsSearch')?.addEventListener('input',e=>{newsState.query=e.target.value.trim();renderSignalList();});
+loadNews();setInterval(()=>loadNews(),REFRESH_MS);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadNews();});
 document.getElementById('alertShareBtn')?.addEventListener('click',()=>{const s=newsState.signals.find(x=>x.id===newsState.activeId);if(s&&navigator.share)navigator.share({title:s.title,url:s.url}).catch(()=>{});else if(s)navigator.clipboard?.writeText(s.title+' — '+s.url);});
 document.getElementById('alertShareBtn2')?.addEventListener('click',()=>{const s=newsState.signals.find(x=>x.id===newsState.activeId);if(s&&navigator.share)navigator.share({title:s.title,url:s.url}).catch(()=>{});else if(s)navigator.clipboard?.writeText(s.title+' — '+s.url);});
 document.getElementById('signalsSearch')?.addEventListener('input',e=>{newsState.query=e.target.value.trim();renderSignalList();});

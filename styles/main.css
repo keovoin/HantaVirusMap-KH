@@ -584,6 +584,86 @@ input[type="search"] {
 }
 
 
+
+/* === ARTICLE PAGES (hantavirus.html / symptoms.html) === */
+.article{background:var(--bg-0);min-height:calc(100vh - 57px);padding:40px 20px 60px;}
+.article-wrap{max-width:820px;margin:0 auto;}
+.article-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700;font-family:'Inter',var(--font-km);margin-bottom:12px;}
+.article-title{font-size:34px;line-height:1.2;font-weight:700;margin:0 0 14px;color:var(--text);}
+.article-lead{font-size:16px;color:var(--text-dim);line-height:1.6;margin:0 0 32px;padding-bottom:24px;border-bottom:1px solid var(--line);}
+.article-section{margin:32px 0;}
+.article-section h2{font-size:22px;color:var(--text);margin:0 0 14px;padding-top:8px;}
+.article-section h3{font-size:16px;color:var(--text);margin:0 0 8px;}
+.article-section h4{font-size:14.5px;color:var(--text);margin:0 0 6px;font-weight:600;}
+.article-section p{color:var(--text-dim);margin:0 0 12px;line-height:1.7;}
+.article-section p strong,.article-section li strong{color:var(--text);}
+.article-section em{color:var(--info);font-style:normal;}
+.article-callout{background:rgba(56,189,248,.08);border-left:3px solid var(--info);padding:12px 16px;margin:16px 0;border-radius:6px;color:var(--text-dim);font-size:13.5px;}
+.article-callout strong{color:var(--text);}
+.article-callout.danger{background:rgba(239,68,68,.08);border-left-color:var(--accent);}
+.info-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0;}
+.info-card{background:var(--bg-1);border:1px solid var(--line);border-radius:10px;padding:16px;transition:border-color var(--t-base),box-shadow var(--t-base);}
+.info-card:hover{border-color:var(--line-strong);box-shadow:var(--shadow);}
+.info-card-head{margin-bottom:10px;}
+.info-card-tag{display:inline-block;font-size:10px;font-weight:700;font-family:'Inter',var(--font-km);letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px;}
+.tag-high{background:rgba(249,115,22,.14);color:#fdba74;}
+.tag-medium{background:rgba(234,179,8,.14);color:#fde68a;}
+.tag-critical{background:rgba(220,38,38,.14);color:#fca5a5;}
+.region-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;}
+.region-card{background:var(--bg-1);border:1px solid var(--line);border-radius:8px;padding:14px;transition:background var(--t-base);}
+.region-card:hover{background:var(--bg-2);}
+.region-card h4{color:var(--accent);margin:0 0 6px;font-size:13.5px;}
+.region-card p{font-size:13px;color:var(--text-dim);margin:0;}
+.steps-list{counter-reset:step;list-style:none;padding:0;margin:12px 0;}
+.steps-list li{position:relative;padding:10px 14px 10px 44px;background:var(--bg-1);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;color:var(--text-dim);line-height:1.55;counter-increment:step;}
+.steps-list li::before{content:counter(step);position:absolute;left:12px;top:10px;width:22px;height:22px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Inter',var(--font-km);}
+.warn-list li{color:#fca5a5;}
+.warn-list li::before{color:var(--accent);content:'!';}
+/* Timeline for HPS phases */
+.timeline{position:relative;padding-left:28px;margin:16px 0;}
+.timeline::before{content:'';position:absolute;left:10px;top:6px;bottom:6px;width:2px;background:var(--line);}
+.tl-item{position:relative;margin-bottom:16px;}
+.tl-badge{position:absolute;left:-28px;top:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Inter',var(--font-km);color:#fff;z-index:1;}
+.tl-high .tl-badge{background:var(--high);}
+.tl-critical .tl-badge{background:var(--critical);}
+.tl-medium .tl-badge{background:var(--medium);color:#000;}
+.tl-body{background:var(--bg-1);border:1px solid var(--line);border-left:3px solid var(--line-strong);border-radius:8px;padding:14px 16px;}
+.tl-high .tl-body{border-left-color:var(--high);}
+.tl-critical .tl-body{border-left-color:var(--critical);}
+.tl-medium .tl-body{border-left-color:var(--medium);}
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+.phase-card{background:var(--bg-1);border:1px solid var(--line);border-radius:8px;padding:14px;position:relative;}
+.phase-num{position:absolute;top:-10px;right:12px;width:26px;height:26px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Inter',var(--font-km);font-size:12px;}
+.phase-card h4{margin:4px 0 6px;font-size:13.5px;color:var(--text);}
+.phase-card p{font-size:12.5px;color:var(--text-dim);margin:0;line-height:1.55;}
+.article-source-note{margin-top:36px;padding:14px 16px;background:var(--bg-1);border:1px dashed var(--line);border-radius:8px;font-size:12.5px;color:var(--text-mute);line-height:1.6;}
+.article-nav-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:32px;padding-top:24px;border-top:1px solid var(--line);}
+
+/* === DONATE BUTTON + MODAL === */
+.donate-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;border:none;border-radius:999px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(239,68,68,.3);transition:transform var(--t-fast),box-shadow var(--t-base);}
+.donate-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(239,68,68,.45);}
+.donate-btn:active{transform:translateY(0);}
+.donate-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-40%);width:min(440px,calc(100% - 32px));max-height:90vh;overflow-y:auto;background:rgba(13,20,33,.98);border:1px solid var(--line-strong);border-radius:16px;padding:22px;z-index:1000;box-shadow:0 24px 60px rgba(0,0,0,.7);opacity:0;transition:opacity var(--t-base),transform var(--t-base);}
+.donate-modal.open{opacity:1;transform:translate(-50%,-50%);}
+.donate-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.donate-head h3{margin:0;font-size:18px;color:var(--text);}
+.donate-sub{font-size:13px;color:var(--text-dim);margin:0 0 16px;line-height:1.5;}
+.donate-qr-wrap{background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;min-height:240px;}
+.donate-qr{max-width:100%;height:auto;display:block;border-radius:4px;}
+.donate-qr-placeholder{width:100%;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#64748b;text-align:center;padding:20px;}
+.donate-qr-icon{color:#94a3b8;}
+.donate-placeholder-title{font-size:14px;font-weight:600;color:#334155;}
+.donate-placeholder-sub{font-size:11.5px;color:#64748b;line-height:1.5;}
+.donate-placeholder-sub code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:'Inter',monospace;font-size:11px;color:#334155;}
+.donate-info{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:6px;}
+.donate-row{display:flex;gap:8px;font-size:13px;color:var(--text);}
+.donate-label{color:var(--text-mute);min-width:48px;}
+.donate-actions{display:flex;gap:8px;justify-content:flex-end;}
+@media(max-width:560px){
+  .article-title{font-size:26px;}
+  .article{padding:28px 16px 40px;}
+  .donate-modal{width:calc(100% - 24px);padding:18px;}
+}
 /* === SIGNALS PANEL (right sidebar) + NEWS ALERT MODAL === */
 @media(min-width:1200px){.layout{grid-template-columns:360px 1fr 340px;}}
 .signals{background:var(--bg-1);border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;position:relative;}

@@ -32,12 +32,16 @@
 
     <nav class="topnav">
       <a href="#map" class="nav-link active">ផែនទី</a>
-      <a href="#events" class="nav-link">ព្រឹត្តិការណ៍</a>
-      <a href="#stats" class="nav-link">ស្ថិតិ</a>
+      <a href="hantavirus.html" class="nav-link">អំពីមេរោគ</a>
+      <a href="symptoms.html" class="nav-link">រោគសញ្ញា</a>
       <a href="#about" class="nav-link">អំពី</a>
     </nav>
 
     <div class="top-actions">
+      <button class="donate-btn" id="donateBtn" aria-label="ឧបត្ថម្ភ" title="ឧបត្ថម្ភ">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        ឧបត្ថម្ភ
+      </button>
       <span class="live-indicator is-live" id="liveIndicator">
         <span class="pulse"></span>
         ផ្ទាល់
@@ -193,6 +197,51 @@
       </div>
     </div>
   </footer>
+
+  <!-- Donate Modal -->
+  <div class="alert-backdrop" id="donateBackdrop" hidden></div>
+  <div class="donate-modal" id="donateModal" hidden role="dialog" aria-modal="true">
+    <div class="donate-head">
+      <h3>ឧបត្ថម្ភគម្រោង</h3>
+      <button class="icon-btn" id="donateCloseBtn" aria-label="បិទ">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p class="donate-sub">សូមអរគុណដែលបានគាំទ្រការងារនេះ។ ស្កេន QR ខាងក្រោមដើម្បីឧបត្ថម្ភ។</p>
+    <div class="donate-qr-wrap">
+      <img id="donateQR" class="donate-qr" src="assets/donate-qr.png" alt="QR code"
+           onerror="this.style.display='none';document.getElementById('donateQRFallback').style.display='flex';" />
+      <div class="donate-qr-placeholder" id="donateQRFallback" style="display:none;">
+        <div class="donate-qr-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/><line x1="18" y1="14" x2="18" y2="18"/><line x1="14" y1="18" x2="18" y2="18"/></svg>
+        </div>
+        <div class="donate-placeholder-title">ដាក់ QR នៅទីនេះ</div>
+        <div class="donate-placeholder-sub">ដាក់រូប QR របស់អ្នកនៅ <code>assets/donate-qr.png</code></div>
+      </div>
+    </div>
+    <div class="donate-info">
+      <div class="donate-row"><span class="donate-label">ឈ្មោះ:</span><strong>K.Pichyvoin</strong></div>
+      <div class="donate-row"><span class="donate-label">សារ:</span><span>រាល់ការឧបត្ថម្ភជួយដំណើរការ server និងការស្រាវជ្រាវ។</span></div>
+    </div>
+    <div class="donate-actions">
+      <button class="btn-ghost" id="donateCopyBtn">ចម្លងតំណ</button>
+      <button class="btn-primary" id="donateCloseBtn2">បិទ</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const dBtn=document.getElementById('donateBtn'),dModal=document.getElementById('donateModal'),dBack=document.getElementById('donateBackdrop');
+      function open(){dBack.hidden=false;dModal.hidden=false;requestAnimationFrame(()=>{dBack.classList.add('open');dModal.classList.add('open');});}
+      function close(){dBack.classList.remove('open');dModal.classList.remove('open');setTimeout(()=>{dBack.hidden=true;dModal.hidden=true;},200);}
+      dBtn?.addEventListener('click',open);
+      document.getElementById('donateCloseBtn')?.addEventListener('click',close);
+      document.getElementById('donateCloseBtn2')?.addEventListener('click',close);
+      dBack?.addEventListener('click',close);
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+      document.getElementById('donateCopyBtn')?.addEventListener('click',()=>{navigator.clipboard?.writeText(location.href);});
+    })();
+  </script>
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
