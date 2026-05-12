@@ -1,14 +1,26 @@
-# QR Code for Donate Button
+# Donate QR — PICHYVOIN KEO
 
-Place your QR image in this folder as **`donate-qr.png`** (or `.jpg` / `.svg` — then update the `<img src>` in `hantavirus.html` and `symptoms.html`).
+Place your actual QR image at **`assets/donate-qr.png`** (same folder as this README).
 
-## Recommended specs
-- Size: **400 × 400 px** minimum (for scan reliability)
-- Format: PNG with transparent or white background
-- Type: any QR — ABA Bank, Wing, PayPal, Pi Pay, KHQR, Ko-fi, Buy Me a Coffee, etc.
+## Steps to upload
 
-## How it works
-If `assets/donate-qr.png` doesn't exist, the Donate modal automatically shows a placeholder box with the text "ដាក់ QR នៅទីនេះ" — so the site still looks polished until you upload your QR.
+1. Go to https://github.com/keovoin/HantaVirusMap-KH/tree/main/assets
+2. Click **Add file → Upload files**
+3. Drag your QR image into the browser
+4. Rename it to exactly **`donate-qr.png`**
+5. Click **Commit changes**
 
-## To change the donor name / message
-Edit the `<strong id="donateName">K.Pichyvoin</strong>` and the message inside `<div class="donate-row">` blocks in `hantavirus.html` and `symptoms.html`.
+## Specs
+- Format: PNG (or JPG — then also update the `<img src>` in all 3 HTML pages)
+- Size: 400×400 px minimum recommended
+- Background: white or transparent
+
+## Fallback
+If `donate-qr.png` does NOT exist, the donation modal auto-shows a polished placeholder
+saying "ដាក់ QR នៅទីនេះ" — so the site stays functional.
+
+## To change the donor name
+Search for `PICHYVOIN KEO` in these 3 files and replace:
+- `index.html`
+- `hantavirus.html`
+- `symptoms.html`

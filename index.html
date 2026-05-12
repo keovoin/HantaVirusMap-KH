@@ -7,12 +7,10 @@
   <meta name="description" content="ផែនទីតាមដានការរាតត្បាតនៃមេរោគ Hantavirus ពិភពលោក — ទិន្នន័យផ្ទាល់ ព័ត៌មាន និងស្ថិតិ។" />
   <meta name="author" content="K.Pichyvoin" />
 
-  <!-- Khmer + Latin fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Leaflet map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
@@ -20,7 +18,6 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ef4444'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23fff'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%23ef4444'/%3E%3C/svg%3E" />
 </head>
 <body>
-  <!-- Top navigation -->
   <header class="topbar">
     <div class="brand">
       <span class="brand-dot"></span>
@@ -58,7 +55,7 @@
   </header>
 
   <main class="layout">
-    <!-- Sidebar: event list -->
+    <!-- Left sidebar: curated events -->
     <aside class="sidebar" id="events">
       <div class="sidebar-header">
         <h2>ព្រឹត្តិការណ៍សកម្ម</h2>
@@ -89,11 +86,10 @@
       </div>
     </aside>
 
-    <!-- Map area -->
+    <!-- Center: map -->
     <section class="map-wrap" id="map">
       <div id="leafletMap" aria-label="ផែនទីពិភពលោក"></div>
 
-      <!-- Floating KPIs -->
       <div class="kpi-bar" id="stats">
         <div class="kpi">
           <span class="kpi-label">ករណីសរុប</span>
@@ -113,56 +109,122 @@
         </div>
       </div>
 
-      <!-- Layer toggles -->
-      <div class="layer-box">
-        <h4>ស្រទាប់ផែនទី</h4>
-        <label><input type="checkbox" id="layerConfirmed" checked /> ករណីបញ្ជាក់</label>
-        <label><input type="checkbox" id="layerSuspected" checked /> ករណីសង្ស័យ</label>
-        <label><input type="checkbox" id="layerEndemic" checked /> តំបន់ឆ្លងធម្មតា</label>
-        <label><input type="checkbox" id="layerHeat" /> ផែនទីកម្តៅ</label>
+      <!-- Layers panel (collapsible, worldmonitor.app style) -->
+      <div class="layer-box" id="layersPanel">
+        <div class="layers-header">
+          <h4>Layers / ស្រទាប់</h4>
+          <button class="layers-toggle" id="layersToggleBtn" title="បង្រួម / ពង្រីក" aria-label="Toggle layers">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+
+        <div class="layers-body" id="layersPanelContent">
+          <div class="layers-status">
+            <div class="layers-status-label">សកម្មឥឡូវនេះ</div>
+            <div class="layers-status-line">
+              <strong><span id="layersCountries">០</span></strong> ប្រទេស ·
+              <strong><span id="layersAlerts">០</span></strong> សញ្ញាណ (៣០ ថ្ងៃ)
+            </div>
+          </div>
+
+          <div class="layers-legend">
+            <div class="leg-row"><span class="leg-icon leg-dot leg-local"></span>
+              <div><strong>Local</strong> — ករណី មនុស្សស្លាប់ ឬការរាតត្បាតក្នុងប្រទេសនេះ</div>
+            </div>
+            <div class="leg-row"><span class="leg-icon leg-ring leg-imported"></span>
+              <div><strong>Imported</strong> — អ្នកជំងឺនាំចូល (អ្នកត្រឡប់ ឬការដឹកនាំសំរាកការព្យាបាល)</div>
+            </div>
+            <div class="leg-row"><span class="leg-icon leg-tri leg-response"></span>
+              <div><strong>Response</strong> — វិធានការរាជធានី ការពិនិត្យ ឬការដាក់ឱ្យនៅដាច់ដោយឡែក</div>
+            </div>
+          </div>
+
+          <div class="layers-notes">
+            <p>លេខលើ pin = ចំនួនក្នុងរបាយការណ៍ថ្មីៗ មិនមែនករណីបញ្ជាក់ទេ។</p>
+            <p>បំពេញស្រាល = សញ្ញាណខ្សោយ/ប្រភពតែមួយ។ បំពេញពេញ = ប្រភពជាច្រើនឬផ្លូវការ។</p>
+            <p>រង្វង់មានលេខ = សញ្ញាណច្រើនត្រួតគ្នា។ ចុច ឬ zoom ដើម្បីពន្លាត់។</p>
+            <p>លើទិដ្ឋភាពពិភពលោក pin បង្រួមមួយក្នុងមួយប្រទេស។ Zoom ចូលដើម្បីបំបែក។</p>
+          </div>
+
+          <div class="layers-controls">
+            <label><input type="checkbox" id="layerSignals" checked /> សញ្ញាណព័ត៌មាន</label>
+            <label><input type="checkbox" id="layerConfirmed" checked /> ករណីបញ្ជាក់</label>
+            <label><input type="checkbox" id="layerSuspected" checked /> ករណីសង្ស័យ</label>
+            <label><input type="checkbox" id="layerEndemic" checked /> តំបន់ឆ្លងធម្មតា (៦ តំបន់)</label>
+            <label><input type="checkbox" id="layerHeat" /> ផែនទីកម្តៅ</label>
+          </div>
+        </div>
       </div>
     </section>
-  </main>
 
-    <!-- Right sidebar: Live news signals -->
+    <!-- Right sidebar: live news signals (inside .layout grid) -->
     <aside class="signals" id="signals">
-      <div class="signals-header"><div class="signals-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>សញ្ញាណថ្មីៗ</span></div><div class="signals-window">៧២ ម៉ោង</div></div>
-      <div class="signals-search"><input type="search" id="signalsSearch" placeholder="ស្វែងរកព័ត៌មាន…" aria-label="ស្វែងរកសញ្ញាណ" /></div>
+      <div class="signals-header">
+        <div class="signals-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>សញ្ញាណថ្មីៗ</span>
+        </div>
+        <div class="signals-window">៧២ ម៉ោង</div>
+      </div>
+      <div class="signals-search">
+        <input type="search" id="signalsSearch" placeholder="ស្វែងរកព័ត៌មាន…" aria-label="ស្វែងរកសញ្ញាណ" />
+      </div>
       <ul class="signal-list" id="signalList"></ul>
-      <div class="signals-footer"><span class="signal-foot-note">ទិន្នន័យមកពី GDELT + Google News · រៀងរាល់ ៣០ នាទី</span></div>
+      <div class="signals-footer">
+        <span class="signal-foot-note">ទិន្នន័យមកពី GDELT + Google News (១៤ locales) · រៀងរាល់ ៣០ នាទី</span>
+      </div>
     </aside>
   </main>
 
   <!-- News Alert Modal -->
   <div class="alert-backdrop" id="alertBackdrop" hidden></div>
   <div class="news-alert" id="newsAlert" hidden role="dialog" aria-modal="true">
-    <div class="alert-head"><div class="alert-kicker"><span class="alert-badge">NEWS ALERT</span><span class="alert-dot">·</span><span class="alert-status" id="alertStatus">សកម្ម</span><span class="alert-age" id="alertAge"></span></div><div class="alert-head-actions"><button class="icon-btn" id="alertShareBtn" title="ចែករំលែក"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button><button class="icon-btn" id="alertCloseBtn" title="បិទ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
+    <div class="alert-head">
+      <div class="alert-kicker">
+        <span class="alert-badge">NEWS ALERT</span>
+        <span class="alert-dot">·</span>
+        <span class="alert-status" id="alertStatus">សកម្ម</span>
+        <span class="alert-age" id="alertAge"></span>
+      </div>
+      <div class="alert-head-actions">
+        <button class="icon-btn" id="alertShareBtn" title="ចែករំលែក"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+        <button class="icon-btn" id="alertCloseBtn" title="បិទ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
     <h3 class="alert-title" id="alertTitle"></h3>
     <div class="alert-origin" id="alertOrigin"></div>
     <p class="alert-summary" id="alertSummary"></p>
-    <div class="alert-meta"><div><span class="alert-meta-label">ប្រទេស:</span> <span id="alertCountry">—</span></div><div><span class="alert-meta-label">ទីតាំង:</span> <span id="alertLocation">—</span></div></div>
-    <div class="alert-actions"><a class="btn-primary" id="alertReadBtn" href="#" target="_blank" rel="noopener">អានប្រភព ↗</a><button class="btn-ghost" id="alertShareBtn2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> ចែករំលែក</button></div>
+    <div class="alert-meta">
+      <div><span class="alert-meta-label">ប្រទេស:</span> <span id="alertCountry">—</span></div>
+      <div><span class="alert-meta-label">ទីតាំង:</span> <span id="alertLocation">—</span></div>
+    </div>
+    <div class="alert-actions">
+      <a class="btn-primary" id="alertReadBtn" href="#" target="_blank" rel="noopener">អានប្រភព ↗</a>
+      <button class="btn-ghost" id="alertShareBtn2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        ចែករំលែក
+      </button>
+    </div>
     <div class="alert-also" id="alertAlso"></div>
     <div class="alert-footer">ទិដ្ឋភាពព័ត៌មាន · មិនមែនជាការណែនាំផ្នែកវេជ្ជសាស្ត្រទេ។</div>
   </div>
 
-  <!-- About / Footer -->
+  <!-- About -->
   <section class="about-section" id="about">
     <div class="about-grid">
       <div>
         <h2>អំពីគម្រោងនេះ</h2>
         <p>
           <strong>HantavirusMap</strong> គឺជាផ្ទាំងតាមដានការរាតត្បាតនៃមេរោគ
-          <em>Hantavirus</em> នៅទូទាំងពិភពលោក។ ព័ត៌មានត្រូវបានប្រមូលពីប្រភពផ្លូវការដូចជា
-          អង្គការសុខភាពពិភពលោក (WHO), មជ្ឈមណ្ឌលគ្រប់គ្រងជំងឺ (CDC), ECDC, PAHO
-          និងប្រព័ន្ធផ្សព្វផ្សាយសហប្រតិបត្តិការ។
+          <em>Hantavirus</em> នៅទូទាំងពិភពលោក។ សញ្ញាណព័ត៌មានត្រូវបានប្រមូលផ្ទាល់ពី
+          <strong>GDELT</strong> និង <strong>Google News</strong> ចំនួន ១៤ locale រួចចម្រាញ់ (NLP)
+          រកឈ្មោះប្រទេស ទីតាំង ចំនួនករណី និងកម្រិតធ្ងន់ធ្ងរ។
         </p>
         <p>
-          គោលបំណងគឺដើម្បីផ្តល់ឱ្យប្រជាពលរដ្ឋខ្មែរនូវព័ត៌មានច្បាស់លាស់
-          និងភាសាងាយយល់ អំពីស្ថានភាពការរាតត្បាតដែលកំពុងកើតឡើង។
+          ទិន្នន័យផ្លូវការមកពី WHO, CDC, ECDC, PAHO ត្រូវបានបញ្ចូលជាមួយ។
+          ផ្ទាំងនេះធ្វើបច្ចុប្បន្នភាពដោយស្វ័យប្រវត្តិរៀងរាល់ <strong>៣០ នាទី</strong>។
         </p>
       </div>
-
       <div>
         <h3>អំពីមេរោគ Hantavirus</h3>
         <ul class="fact-list">
@@ -172,7 +234,6 @@
           <li>មិនទាន់មានវ៉ាក់សាំងដែលបានអនុម័តនៅឡើយទេ។</li>
         </ul>
       </div>
-
       <div>
         <h3>ការការពារ</h3>
         <ul class="fact-list">
@@ -208,19 +269,23 @@
       </button>
     </div>
     <p class="donate-sub">សូមអរគុណដែលបានគាំទ្រការងារនេះ។ ស្កេន QR ខាងក្រោមដើម្បីឧបត្ថម្ភ។</p>
-    <div class="donate-qr-wrap">
-      <img id="donateQR" class="donate-qr" src="assets/donate-qr.png" alt="QR code"
-           onerror="this.style.display='none';document.getElementById('donateQRFallback').style.display='flex';" />
-      <div class="donate-qr-placeholder" id="donateQRFallback" style="display:none;">
-        <div class="donate-qr-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/><line x1="18" y1="14" x2="18" y2="18"/><line x1="14" y1="18" x2="18" y2="18"/></svg>
+    <div class="donate-qr-card">
+      <div class="donate-qr-name">PICHYVOIN KEO</div>
+      <div class="donate-qr-divider"></div>
+      <div class="donate-qr-wrap">
+        <img id="donateQR" class="donate-qr" src="assets/donate-qr.png" alt="QR code — PICHYVOIN KEO"
+             onerror="this.style.display='none';document.getElementById('donateQRFallback').style.display='flex';" />
+        <div class="donate-qr-placeholder" id="donateQRFallback" style="display:none;">
+          <div class="donate-qr-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/><line x1="18" y1="14" x2="18" y2="18"/><line x1="14" y1="18" x2="18" y2="18"/></svg>
+          </div>
+          <div class="donate-placeholder-title">ដាក់ QR នៅទីនេះ</div>
+          <div class="donate-placeholder-sub">ដាក់រូប QR របស់អ្នកនៅ <code>assets/donate-qr.png</code></div>
         </div>
-        <div class="donate-placeholder-title">ដាក់ QR នៅទីនេះ</div>
-        <div class="donate-placeholder-sub">ដាក់រូប QR របស់អ្នកនៅ <code>assets/donate-qr.png</code></div>
       </div>
     </div>
     <div class="donate-info">
-      <div class="donate-row"><span class="donate-label">ឈ្មោះ:</span><strong>K.Pichyvoin</strong></div>
+      <div class="donate-row"><span class="donate-label">ឈ្មោះ:</span><strong>PICHYVOIN KEO</strong></div>
       <div class="donate-row"><span class="donate-label">សារ:</span><span>រាល់ការឧបត្ថម្ភជួយដំណើរការ server និងការស្រាវជ្រាវ។</span></div>
     </div>
     <div class="donate-actions">
@@ -228,20 +293,6 @@
       <button class="btn-primary" id="donateCloseBtn2">បិទ</button>
     </div>
   </div>
-
-  <script>
-    (function(){
-      const dBtn=document.getElementById('donateBtn'),dModal=document.getElementById('donateModal'),dBack=document.getElementById('donateBackdrop');
-      function open(){dBack.hidden=false;dModal.hidden=false;requestAnimationFrame(()=>{dBack.classList.add('open');dModal.classList.add('open');});}
-      function close(){dBack.classList.remove('open');dModal.classList.remove('open');setTimeout(()=>{dBack.hidden=true;dModal.hidden=true;},200);}
-      dBtn?.addEventListener('click',open);
-      document.getElementById('donateCloseBtn')?.addEventListener('click',close);
-      document.getElementById('donateCloseBtn2')?.addEventListener('click',close);
-      dBack?.addEventListener('click',close);
-      document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
-      document.getElementById('donateCopyBtn')?.addEventListener('click',()=>{navigator.clipboard?.writeText(location.href);});
-    })();
-  </script>
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

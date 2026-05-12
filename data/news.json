@@ -1,10 +1,4 @@
 {
-  "updatedAt": "2026-05-12T00:00:00Z",
-  "window": "72h",
-  "count": 0,
-  "sources": ["GDELT","GoogleNews-en-US","GoogleNews-en-GB","GoogleNews-en-KH","GoogleNews-es-ES","GoogleNews-es-AR","GoogleNews-es-MX","GoogleNews-es-CL","GoogleNews-ja-JP","GoogleNews-fr-FR","GoogleNews-de-DE","GoogleNews-pt-BR","GoogleNews-zh-CN","GoogleNews-ko-KR","GoogleNews-nl-NL"],
-  "note": "Bootstrap. First live data arrives after GitHub Actions runs.",
-  "signals": []
   "updatedAt": "2026-05-12T00:55:41.644Z",
   "window": "72h",
   "count": 100,
