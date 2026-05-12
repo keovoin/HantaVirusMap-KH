@@ -1,73 +1,118 @@
-# HantavirusMap — ផែនទីតាមដានមេរោគ Hantavirus (Khmer)
+# HantavirusMap-KH — ផែនទីតាមដានមេរោគ Hantavirus (Khmer)
 
-ផ្ទាំងគ្រប់គ្រងផ្ទាល់ (real-time dashboard) ជាភាសាខ្មែរ សម្រាប់តាមដានការរាតត្បាតនៃមេរោគ **Hantavirus** នៅទូទាំងពិភពលោក។
+Real-time Hantavirus outbreak tracker in **Khmer language** — inspired by [worldmonitor.app](https://worldmonitor.app/).
 
-Built by **K.Pichyvoin** · Inspired by [worldmonitor.app](https://worldmonitor.app/)
-
----
-
-## មុខងារសំខាន់ (Features)
-
-- ផែនទីអន្តរកម្មពិភពលោក (Leaflet + CartoDB Dark basemap)
-- បង្ហាញករណីបញ្ជាក់ / សង្ស័យ / តំបន់ឆ្លងធម្មតា ជាមួយនឹងចំណុចផ្ទាល់
-- KPI ផ្ទាល់: ករណីសរុប, អ្នកស្លាប់, ករណីសង្ស័យ, ប្រទេសរងផលប៉ះពាល់
-- បញ្ជីព្រឹត្តិការណ៍ចំហៀង ជាមួយនឹងការស្វែងរក + តម្រង់តាមកម្រិតធ្ងន់ធ្ងរ
-- ស្រទាប់ផែនទីបង្វិលបាន (បញ្ជាក់ / សង្ស័យ / តំបន់ឆ្លងធម្មតា / ផែនទីកម្តៅ)
-- រចនាងងឹត (dark UI) ស្រដៀង worldmonitor.app
-- គាំទ្រពេញលេញនូវ **ភាសាខ្មែរ** រួមទាំងលេខ (Noto Sans Khmer)
-- ធ្វើការលើឧបករណ៍ចល័ត (responsive)
+**Built by PICHYVOIN KEO (K.Pichyvoin)**
 
 ---
 
-## ដំណើរការ (Run locally)
+## Features
 
-គ្មានជំហានបង្កើត (build) ទេ — ជាគេហទំព័រឋិតិវន្តសុទ្ធ។
+### Live Dashboard (`index.html`)
+- Dark-themed interactive world map (Leaflet + CartoDB Dark Matter)
+- **3-column layout**: Events (left) · Map (center) · News Signals (right)
+- **KPIs**: Total cases (៩៦), deaths (៣), suspected (១១), affected countries (២០)
+- **16 curated outbreak events** with severity-colored pulsing markers
+- **100+ live news signals** from 14 Google News locales + GDELT
+- **Client-side NLP**: location detection (35 countries, 50+ US states/cities), phrase translation to Khmer, signal classification (Local/Imported/Response)
+- News Alert modal with source link, country, location, duplicates
+- Layers panel with Local/Imported/Response legend + "Add context" section
+- Auto-refresh every 30 minutes + manual refresh button
+- Donate button with QR code (PICHYVOIN KEO)
+
+### Info Pages (Khmer)
+- `hantavirus.html` — What is Hantavirus (8 sections, fully Khmer)
+- `symptoms.html` — Symptoms: HPS 3-phase timeline, HFRS 5-phase grid, when to see a doctor
+
+### Auto-refresh Pipeline (GitHub Actions)
+- `scripts/fetch-data.mjs` — Scrapes hantavirusmap.com + hantatrack.com + hantatracking.com every 30 min
+- `scripts/fetch-news.mjs` — Pulls from GDELT + 14 Google News locales (en-US, en-GB, en-KH, es-ES, es-AR, es-MX, es-CL, ja-JP, fr-FR, de-DE, pt-BR, zh-CN, ko-KR, nl-NL)
+- `.github/workflows/refresh-data.yml` — Cron for outbreak totals
+- `.github/workflows/refresh-news.yml` — Cron for news signals
+
+---
+
+## Data Sources
+
+| Source | Type | Frequency |
+|--------|------|-----------|
+| [hantavirusmap.com](https://hantavirusmap.com/) | Outbreak totals | Every 30 min |
+| [hantatrack.com](https://hantatrack.com/) | Cross-check | Every 30 min |
+| [hantatracking.com](https://hantatracking.com/) | Cross-check | Every 30 min |
+| GDELT DOC 2.0 API | Global news (English) | Every 30 min |
+| Google News RSS (14 locales) | Multi-language news | Every 30 min |
+| WHO DON, CDC HAN, ECDC, PAHO | Official (curated seed) | Manual |
+
+---
+
+## Run Locally
+
+No build step — pure static site.
 
 ```bash
-# ជម្រើស ១ — Python
+# Option 1: Python
 python3 -m http.server 8080
 
-# ជម្រើស ២ — Node
+# Option 2: Node
 npx serve .
 ```
 
-បន្ទាប់មកបើក <http://localhost:8080>។
+Open http://localhost:8080
 
 ---
 
-## រចនាសម្ព័ន្ធ (Structure)
+## Structure
 
 ```
 HantaVirusMap-KH/
-├── index.html          # ទម្រង់ទំព័រ
-├── styles/main.css     # រចនាបថ (dark theme)
-├── scripts/app.js      # តក្កផែនទី + ទិន្នន័យ
+├── index.html              # Main dashboard (3-column: events + map + signals)
+├── hantavirus.html         # About Hantavirus (Khmer article)
+├── symptoms.html           # Symptoms page (Khmer article)
+├── scripts/
+│   ├── app.js              # All client logic (map, signals, translate, donate)
+│   ├── fetch-data.mjs      # Server scraper for outbreak totals
+│   └── fetch-news.mjs      # Server scraper for news signals (14 locales)
+├── styles/
+│   └── main.css            # Full dark theme + all components
+├── data/
+│   ├── hantavirus.json     # Curated events + live totals (auto-refreshed)
+│   ├── news.json           # Live news signals (auto-refreshed)
+│   └── seed.json           # Fallback seed data
+├── assets/
+│   ├── donate-qr.png       # Your QR image (optional — canvas fallback exists)
+│   └── donate-qr.png.README.md
+├── .github/workflows/
+│   ├── refresh-data.yml    # Cron: outbreak totals every 30 min
+│   └── refresh-news.yml    # Cron: news signals every 30 min
 └── README.md
 ```
 
 ---
 
-## ប្រភពទិន្នន័យ (Data sources)
+## Credits
 
-ទិន្នន័យត្រូវបានប្រមូល (aggregated) ពីប្រភពសាធារណៈ:
-
-- WHO Disease Outbreak News (DON 2026-DON599)
-- US CDC — HAN 528 / Situation summary
-- ECDC, PAHO, UKHSA, NICD, KDCA, China CDC
-- ផ្សព្វផ្សាយ: Reuters, AP, BBC, Newsweek
-
-> សម្គាល់: ទិន្នន័យត្រូវបានអង្គក្នុងឯកសារ `scripts/app.js` (static dataset) ។
-> ក្នុងការអនុវត្តផលិតកម្ម (production) គួរភ្ជាប់ API ផ្ទាល់ (WHO/CDC feed)។
+- **Built by**: PICHYVOIN KEO (K.Pichyvoin)
+- **Inspired by**: [worldmonitor.app](https://worldmonitor.app/)
+- **Data**: WHO, CDC, ECDC, PAHO, GDELT, Google News
+- **Map**: [Leaflet](https://leafletjs.com/) + [CartoDB](https://carto.com/) Dark Matter basemap
 
 ---
 
-## កំណត់សម្គាល់
+## Donate
 
-ផ្ទាំងនេះមានគោលបំណងផ្តល់ព័ត៌មាន **ប៉ុណ្ណោះ**។ វាមិនមែនជាការណែនាំផ្នែកវេជ្ជសាស្ត្រទេ។
-ប្រសិនបើអ្នកមានរោគសញ្ញា សូមប្រឹក្សាជាមួយគ្រូពេទ្យ ឬទូរស័ព្ទទៅ CDC កម្ពុជា។
+Click the ❤ **ឧបត្ថម្ភ** button in the top bar to scan the QR code for **PICHYVOIN KEO**.
 
 ---
 
-## អាជ្ញាប័ណ្ណ (License)
+## Known Limitations
 
-MIT © 2026 K.Pichyvoin
+1. **Refresh button re-fetches the same `data/news.json` file** — it only changes when the GitHub Actions cron commits new data (every 30 min). The button confirms the connection is alive but won't show "new" articles until the server-side scraper runs.
+2. **News signals are in a 72h window** — articles older than 3 days drop off automatically.
+3. **Khmer translation is rule-based** (not AI/LLM) — covers ~80 common phrases. Some English words may remain in translated titles.
+4. **Location detection** catches ~95% of English headlines but may miss non-standard place names.
+
+---
+
+## License
+
+MIT © 2026 PICHYVOIN KEO
