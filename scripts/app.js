@@ -532,7 +532,8 @@ async function loadData() {
     rebuildMergedEvents();
     updateTimestampUI();
     const ageMs = Date.now() - new Date(state.updatedAt).getTime();
-    setStatus(ageMs > 2*60*60*1000 ? 'stale' : 'live');
+    // Use 12h threshold — data is expected to be a few hours old between cron runs
+    setStatus(ageMs > 12 * 60 * 60 * 1000 ? 'stale' : 'live');
   } catch (err) {
     console.error('loadData:', err);
     setStatus('error');
@@ -561,6 +562,13 @@ async function loadNews() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     const raw = json.signals || [];
+    // Update the timestamp using news.json's updatedAt (fresher than hantavirus.json)
+    if (json.updatedAt) {
+      state.updatedAt = json.updatedAt;
+      updateTimestampUI();
+      const ageMs = Date.now() - new Date(json.updatedAt).getTime();
+      setStatus(ageMs > 12 * 60 * 60 * 1000 ? 'stale' : 'live');
+    }
     // Enrich each signal client-side: fill missing country/location + classify type
     newsState.signals = raw.map(s => {
       const enriched = { ...s };
@@ -812,6 +820,34 @@ document.getElementById('layersToggleBtn')?.addEventListener('click', () => {
 
 /* ---------- Init ---------- */
 document.getElementById('year').textContent = toKhmerNum(new Date().getFullYear());
+
+/* Generate QR code for donate modal using qrcode.js (CDN) */
+(function initDonateQR() {
+  const canvas = document.getElementById('donateQRCanvas');
+  if (!canvas) return;
+  function tryGenerate() {
+    if (typeof QRCode === 'undefined') { setTimeout(tryGenerate, 300); return; }
+    try {
+      new QRCode(canvas, {
+        text: DONATE_PAYLOAD || DONATE_NAME,
+        width: 260, height: 260,
+        colorDark: '#000000', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e) {
+      // Fallback: draw a simple "scan unavailable" text
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#f8fafc'; ctx.fillRect(0,0,260,260);
+        ctx.fillStyle = '#64748b'; ctx.font = '13px Inter,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('ដាក់ QR នៅ assets/donate-qr.png', 130, 130);
+      }
+    }
+  }
+  tryGenerate();
+})();
+
 loadData();
 loadNews();
 setInterval(loadData, REFRESH_MS);
