@@ -109,12 +109,51 @@
         </div>
       </div>
 
-      <div class="layer-box">
-        <h4>ស្រទាប់ផែនទី</h4>
-        <label><input type="checkbox" id="layerConfirmed" checked /> ករណីបញ្ជាក់</label>
-        <label><input type="checkbox" id="layerSuspected" checked /> ករណីសង្ស័យ</label>
-        <label><input type="checkbox" id="layerEndemic" checked /> តំបន់ឆ្លងធម្មតា</label>
-        <label><input type="checkbox" id="layerHeat" /> ផែនទីកម្តៅ</label>
+      <!-- Layers panel (collapsible, worldmonitor.app style) -->
+      <div class="layer-box" id="layersPanel">
+        <div class="layers-header">
+          <h4>Layers / ស្រទាប់</h4>
+          <button class="layers-toggle" id="layersToggleBtn" title="បង្រួម / ពង្រីក" aria-label="Toggle layers">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+
+        <div class="layers-body" id="layersPanelContent">
+          <div class="layers-status">
+            <div class="layers-status-label">សកម្មឥឡូវនេះ</div>
+            <div class="layers-status-line">
+              <strong><span id="layersCountries">០</span></strong> ប្រទេស ·
+              <strong><span id="layersAlerts">០</span></strong> សញ្ញាណ (៣០ ថ្ងៃ)
+            </div>
+          </div>
+
+          <div class="layers-legend">
+            <div class="leg-row"><span class="leg-icon leg-dot leg-local"></span>
+              <div><strong>Local</strong> — ករណី មនុស្សស្លាប់ ឬការរាតត្បាតក្នុងប្រទេសនេះ</div>
+            </div>
+            <div class="leg-row"><span class="leg-icon leg-ring leg-imported"></span>
+              <div><strong>Imported</strong> — អ្នកជំងឺនាំចូល (អ្នកត្រឡប់ ឬការដឹកនាំសំរាកការព្យាបាល)</div>
+            </div>
+            <div class="leg-row"><span class="leg-icon leg-tri leg-response"></span>
+              <div><strong>Response</strong> — វិធានការរាជធានី ការពិនិត្យ ឬការដាក់ឱ្យនៅដាច់ដោយឡែក</div>
+            </div>
+          </div>
+
+          <div class="layers-notes">
+            <p>លេខលើ pin = ចំនួនក្នុងរបាយការណ៍ថ្មីៗ មិនមែនករណីបញ្ជាក់ទេ។</p>
+            <p>បំពេញស្រាល = សញ្ញាណខ្សោយ/ប្រភពតែមួយ។ បំពេញពេញ = ប្រភពជាច្រើនឬផ្លូវការ។</p>
+            <p>រង្វង់មានលេខ = សញ្ញាណច្រើនត្រួតគ្នា។ ចុច ឬ zoom ដើម្បីពន្លាត់។</p>
+            <p>លើទិដ្ឋភាពពិភពលោក pin បង្រួមមួយក្នុងមួយប្រទេស។ Zoom ចូលដើម្បីបំបែក។</p>
+          </div>
+
+          <div class="layers-controls">
+            <label><input type="checkbox" id="layerSignals" checked /> សញ្ញាណព័ត៌មាន</label>
+            <label><input type="checkbox" id="layerConfirmed" checked /> ករណីបញ្ជាក់</label>
+            <label><input type="checkbox" id="layerSuspected" checked /> ករណីសង្ស័យ</label>
+            <label><input type="checkbox" id="layerEndemic" checked /> តំបន់ឆ្លងធម្មតា (៦ តំបន់)</label>
+            <label><input type="checkbox" id="layerHeat" /> ផែនទីកម្តៅ</label>
+          </div>
+        </div>
       </div>
     </section>
 
