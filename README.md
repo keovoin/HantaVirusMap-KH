@@ -19,6 +19,7 @@ Real-time Hantavirus outbreak tracker in **Khmer language** — inspired by [wor
 - Layers panel with Local/Imported/Response legend + "Add context" section
 - Auto-refresh every 30 minutes + manual refresh button
 - Donate button with QR code (PICHYVOIN KEO)
+- **Vercel Web Analytics** — Track page views and user engagement
 
 ### Info Pages (Khmer)
 - `hantavirus.html` — What is Hantavirus (8 sections, fully Khmer)
