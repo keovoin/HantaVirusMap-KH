@@ -1,0 +1,21 @@
+{
+  "name": "hantavirus-map-kh",
+  "version": "1.0.0",
+  "description": "Real-time Hantavirus outbreak tracker in Khmer language",
+  "private": true,
+  "scripts": {
+    "serve": "npx serve .",
+    "dev": "npx serve . -p 8080"
+  },
+  "keywords": [
+    "hantavirus",
+    "outbreak",
+    "tracker",
+    "khmer",
+    "cambodia",
+    "health"
+  ],
+  "author": "K.Pichyvoin",
+  "license": "MIT",
+  "devDependencies": {}
+}
