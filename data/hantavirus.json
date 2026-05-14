@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-05-14T09:56:09.903Z",
+  "updatedAt": "2026-05-14T11:47:02.352Z",
   "sourceStatus": {
-    "hantavirusmap": "error: fetch failed",
+    "hantavirusmap": "error: HTTP 421",
     "hantatrack": "error: fetch failed",
     "hantatracking": "ok"
   },
